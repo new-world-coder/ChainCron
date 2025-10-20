@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID": "@walletconnect-project-id",
+    "FORTE_RPC_URL": "@forte-rpc-url",
+    "NEXT_PUBLIC_WORKFLOW_REGISTRY_ADDRESS": "@workflow-registry-address",
+    "NEXT_PUBLIC_SUBSCRIPTION_MANAGER_ADDRESS": "@subscription-manager-address",
+    "NEXT_PUBLIC_WORKFLOW_EXECUTOR_ADDRESS": "@workflow-executor-address",
+    "NEXT_PUBLIC_PAYMENT_TOKEN_ADDRESS": "@payment-token-address"
+  },
+  "functions": {
+    "app/**/*.tsx": {
+      "maxDuration": 30
+    }
+  }
+}
