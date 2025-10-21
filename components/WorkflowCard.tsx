@@ -12,7 +12,8 @@ import {
   ArrowRight,
   Shield,
   Zap,
-  Eye
+  Eye,
+  AlertTriangle
 } from 'lucide-react'
 import type { Workflow } from '@/types/contracts'
 import { useSubscription } from '@/hooks/useSubscription'
@@ -26,6 +27,35 @@ export function WorkflowCard({ workflow, onSubscribe }: WorkflowCardProps) {
   const { address } = useAccount()
   const { subscribe, isSubscribing } = useSubscription()
   const [isHovered, setIsHovered] = useState(false)
+
+  // Mock risk score calculation - in production, this would come from the risk analysis API
+  const getRiskScore = (workflowId: number) => {
+    const riskScores = {
+      1: 0.2, // Auto-compound - Low risk
+      2: 0.4, // Portfolio rebalancer - Medium risk
+      3: 0.6, // Price alert - Medium-High risk
+      4: 0.3, // DCA strategy - Low-Medium risk
+      5: 0.5, // Liquidation protection - Medium risk
+    }
+    return riskScores[workflowId as keyof typeof riskScores] || 0.4
+  }
+
+  const riskScore = getRiskScore(workflow.id)
+
+  const getRiskColor = (score: number) => {
+    if (score < 0.3) return { bg: 'bg-green-100', text: 'text-green-800', icon: Shield }
+    if (score < 0.7) return { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: AlertTriangle }
+    return { bg: 'bg-red-100', text: 'text-red-800', icon: AlertTriangle }
+  }
+
+  const getRiskLabel = (score: number) => {
+    if (score < 0.3) return 'Low Risk'
+    if (score < 0.7) return 'Medium Risk'
+    return 'High Risk'
+  }
+
+  const riskColor = getRiskColor(riskScore)
+  const RiskIcon = riskColor.icon
 
   const handleSubscribe = async () => {
     if (!address) {
@@ -132,6 +162,30 @@ export function WorkflowCard({ workflow, onSubscribe }: WorkflowCardProps) {
         <div className="flex items-center gap-1">
           <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
           <span>4.9</span>
+        </div>
+      </div>
+
+      {/* Risk Score */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <RiskIcon className="w-4 h-4" />
+            <span className="text-sm font-medium text-muted-foreground">Risk Level</span>
+          </div>
+          <div className={`px-2 py-1 rounded-full text-xs font-medium ${riskColor.bg} ${riskColor.text}`}>
+            {getRiskLabel(riskScore)}
+          </div>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <motion.div
+            className={`h-2 rounded-full ${riskColor.bg.replace('100', '500')}`}
+            initial={{ width: 0 }}
+            animate={{ width: `${riskScore * 100}%` }}
+            transition={{ duration: 1, ease: "easeOut" }}
+          />
+        </div>
+        <div className="text-xs text-muted-foreground mt-1">
+          Risk Score: {Math.round(riskScore * 100)}%
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Filter, Grid, List, X } from 'lucide-react'
 import { WorkflowCard } from '@/components/WorkflowCard'
 import { FilterSidebar } from '@/components/FilterSidebar'
+import { AIRecommendations } from '@/components/AIRecommendations'
 import { mockWorkflows, getWorkflowsByCategory, searchWorkflows } from '@/lib/mockData/workflows'
 
 export default function MarketplacePage() {
@@ -12,6 +13,7 @@ export default function MarketplacePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
+  const [showAIRecommendations, setShowAIRecommendations] = useState(true)
 
   // Filter and search workflows
   const filteredWorkflows = useMemo(() => {
@@ -62,6 +64,18 @@ export default function MarketplacePage() {
             Discover and subscribe to automation workflows that help you optimize your DeFi strategies and maximize returns.
           </motion.p>
         </div>
+
+        {/* AI Recommendations Section */}
+        {showAIRecommendations && (
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <AIRecommendations userAddress="0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6" />
+          </motion.div>
+        )}
 
         {/* Controls */}
         <div className="flex flex-col lg:flex-row gap-6 mb-8">
