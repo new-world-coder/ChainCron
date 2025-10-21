@@ -19,6 +19,11 @@ export function Navbar() {
     { href: '/risk-analysis', label: 'Risk Analysis' },
     { href: '/transparency', label: 'Transparency' },
     { href: '/analytics', label: 'Analytics' },
+    { href: '/multi-chain', label: 'Multi-Chain' },
+    { href: '/compose', label: 'Compose' },
+    { href: '/leaderboards', label: 'Leaderboards' },
+    { href: '/feed', label: 'Feed' },
+    { href: '/nft-market', label: 'NFT Market' },
   ]
 
   return (
