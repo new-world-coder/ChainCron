@@ -17,6 +17,7 @@ export function Navbar() {
     { href: '/builder', label: 'Builder' },
     { href: '/onboarding', label: 'Onboarding' },
     { href: '/risk-analysis', label: 'Risk Analysis' },
+    { href: '/transparency', label: 'Transparency' },
     { href: '/analytics', label: 'Analytics' },
   ]
 

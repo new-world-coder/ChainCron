@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { AdvancedAnalytics } from '@/components/AdvancedAnalytics'
+import { EnhancedAnalytics } from '@/components/EnhancedAnalytics'
 import { ArrowLeft, Settings, Download, Share2, BarChart3, TrendingUp, AlertTriangle, Target } from 'lucide-react'
 import Link from 'next/link'
 
@@ -135,7 +136,7 @@ export default function AnalyticsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          {activeView === 'analytics' && <AdvancedAnalytics />}
+          {activeView === 'analytics' && <EnhancedAnalytics />}
           
           {activeView === 'reports' && (
             <div className="space-y-6">
