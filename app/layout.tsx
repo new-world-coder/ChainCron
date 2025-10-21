@@ -3,12 +3,13 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 import { Navbar } from '@/components/Navbar'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Forte Cron - Decentralized Task Scheduler Marketplace',
-  description: 'A marketplace where developers create automation workflows and users subscribe with one click',
+  title: 'ChainCron - Decentralized DeFi Automation Marketplace',
+  description: 'Automate DeFi workflows with AI-powered recommendations. Developers monetize automation scripts, users earn while they sleep.',
 }
 
 export default function RootLayout({
@@ -19,12 +20,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>
-          <div className="min-h-screen bg-background">
-            <Navbar />
-            {children}
-          </div>
-        </Providers>
+        <ErrorBoundary>
+          <Providers>
+            <div className="min-h-screen bg-background">
+              <Navbar />
+              {children}
+            </div>
+          </Providers>
+        </ErrorBoundary>
       </body>
     </html>
   )

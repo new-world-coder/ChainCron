@@ -7,6 +7,8 @@ import '@rainbow-me/rainbowkit/styles.css'
 import { Toaster } from 'sonner'
 import { defineChain } from 'viem'
 import { http } from 'wagmi'
+import { useEffect } from 'react'
+import { GlobalErrorHandler } from '@/components/GlobalErrorHandler'
 
 // Forte testnet configuration
 const forteTestnet = defineChain({
@@ -29,7 +31,7 @@ const forteTestnet = defineChain({
 })
 
 const config = getDefaultConfig({
-  appName: 'Forte Cron',
+  appName: 'ChainCron',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default',
   chains: [forteTestnet],
   transports: {
@@ -37,17 +39,63 @@ const config = getDefaultConfig({
   },
 })
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+      retryDelay: 1000,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+})
+
+// Error boundary component for wallet connection errors
+function WalletErrorBoundary({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // Handle unhandled promise rejections from WalletConnect
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (event.reason?.message?.includes('Connection interrupted') || 
+          event.reason?.message?.includes('WalletConnect') ||
+          event.reason?.message?.includes('subscribe')) {
+        console.warn('WalletConnect connection interrupted, this is normal:', event.reason)
+        event.preventDefault() // Prevent the error from showing in console
+      }
+    }
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection)
+    
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection)
+    }
+  }, [])
+
+  return <>{children}</>
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          {children}
-          <Toaster position="top-right" richColors />
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <WalletErrorBoundary>
+      <GlobalErrorHandler />
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider
+            modalSize="compact"
+            showRecentTransactions={true}
+            appInfo={{
+              appName: 'ChainCron',
+              learnMoreUrl: 'https://chaincron.com',
+            }}
+          >
+            {children}
+            <Toaster 
+              position="top-right" 
+              richColors 
+              expand={true}
+              duration={4000}
+            />
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </WalletErrorBoundary>
   )
 }
