@@ -54,13 +54,25 @@ function WalletErrorBoundary({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Handle unhandled promise rejections from WalletConnect
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      if (event.reason?.message?.includes('Connection interrupted') || 
-          event.reason?.message?.includes('WalletConnect') ||
-          event.reason?.message?.includes('subscribe') ||
-          event.reason?.message?.includes('jsonrpc-provider') ||
-          event.reason?.message?.includes('ws-connection') ||
-          event.reason?.message?.includes('WebSocket')) {
-        console.warn('WalletConnect connection interrupted, this is normal:', event.reason)
+      const errorMessage = event.reason?.message || String(event.reason) || ''
+      const errorStack = event.reason?.stack || ''
+      
+      if (errorMessage.includes('Connection interrupted') || 
+          errorMessage.includes('WalletConnect') ||
+          errorMessage.includes('subscribe') ||
+          errorMessage.includes('jsonrpc-provider') ||
+          errorMessage.includes('ws-connection') ||
+          errorMessage.includes('WebSocket') ||
+          errorMessage.includes('EventEmitter') ||
+          errorMessage.includes('onClose') ||
+          errorMessage.includes('onclose') ||
+          errorStack.includes('@walletconnect') ||
+          errorStack.includes('@reown') ||
+          errorStack.includes('appkit') ||
+          errorMessage.includes('Failed to fetch remote project configuration') ||
+          errorMessage.includes('HTTP status code: 403') ||
+          errorMessage.includes('api.web3modal.org')) {
+        console.warn('WalletConnect connection interrupted, this is normal:', errorMessage)
         event.preventDefault() // Prevent the error from showing in console
       }
     }

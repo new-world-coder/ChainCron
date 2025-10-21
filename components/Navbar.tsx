@@ -27,12 +27,12 @@ export function Navbar() {
               <span className="font-bold text-xl">Forte Cron</span>
             </Link>
             
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden lg:flex items-center space-x-6">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`transition-colors hover:text-primary ${
+                  className={`transition-colors hover:text-primary whitespace-nowrap ${
                     pathname === item.href
                       ? 'text-primary'
                       : 'text-muted-foreground'
