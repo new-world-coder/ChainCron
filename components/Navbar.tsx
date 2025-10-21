@@ -3,9 +3,12 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
+import { Menu, X } from 'lucide-react'
 
 export function Navbar() {
   const pathname = usePathname()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const navItems = [
     { href: '/marketplace', label: 'Marketplace' },
@@ -27,12 +30,12 @@ export function Navbar() {
               <span className="font-bold text-xl">Forte Cron</span>
             </Link>
             
-            <div className="hidden lg:flex items-center space-x-6">
+            <div className="hidden md:flex items-center space-x-4">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`transition-colors hover:text-primary whitespace-nowrap ${
+                  className={`transition-colors hover:text-primary whitespace-nowrap text-sm ${
                     pathname === item.href
                       ? 'text-primary'
                       : 'text-muted-foreground'
@@ -45,9 +48,42 @@ export function Navbar() {
           </div>
           
           <div className="flex items-center space-x-4">
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-md hover:bg-muted transition-colors"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
             <ConnectButton />
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t bg-background/95 backdrop-blur">
+            <div className="px-4 py-2 space-y-1">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`block px-3 py-2 rounded-md text-sm transition-colors ${
+                    pathname === item.href
+                      ? 'text-primary bg-primary/10'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   )
