@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAccount } from 'wagmi'
+import Link from 'next/link'
 import { 
   Clock, 
   Users, 
@@ -10,7 +11,8 @@ import {
   Star,
   ArrowRight,
   Shield,
-  Zap
+  Zap,
+  Eye
 } from 'lucide-react'
 import type { Workflow } from '@/types/contracts'
 import { useSubscription } from '@/hooks/useSubscription'
@@ -133,30 +135,43 @@ export function WorkflowCard({ workflow, onSubscribe }: WorkflowCardProps) {
         </div>
       </div>
 
-      {/* Subscribe Button */}
-      <motion.button
-        className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
-          isSubscribing
-            ? 'bg-muted text-muted-foreground cursor-not-allowed'
-            : 'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg'
-        }`}
-        onClick={handleSubscribe}
-        disabled={isSubscribing}
-        whileHover={!isSubscribing ? { scale: 1.02 } : {}}
-        whileTap={!isSubscribing ? { scale: 0.98 } : {}}
-      >
-        {isSubscribing ? (
-          <>
-            <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
-            Subscribing...
-          </>
-        ) : (
-          <>
-            Subscribe Now
-            <ArrowRight className={`w-4 h-4 transition-transform duration-200 ${isHovered ? 'translate-x-1' : ''}`} />
-          </>
-        )}
-      </motion.button>
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <Link href={`/workflow/${workflow.id}`}>
+          <motion.button
+            className="flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Eye className="w-4 h-4" />
+            View Details
+          </motion.button>
+        </Link>
+        
+        <motion.button
+          className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
+            isSubscribing
+              ? 'bg-muted text-muted-foreground cursor-not-allowed'
+              : 'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg'
+          }`}
+          onClick={handleSubscribe}
+          disabled={isSubscribing}
+          whileHover={!isSubscribing ? { scale: 1.02 } : {}}
+          whileTap={!isSubscribing ? { scale: 0.98 } : {}}
+        >
+          {isSubscribing ? (
+            <>
+              <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+              Subscribing...
+            </>
+          ) : (
+            <>
+              Subscribe Now
+              <ArrowRight className={`w-4 h-4 transition-transform duration-200 ${isHovered ? 'translate-x-1' : ''}`} />
+            </>
+          )}
+        </motion.button>
+      </div>
 
       {/* Creator Info */}
       <div className="mt-4 pt-4 border-t border-border/50">
