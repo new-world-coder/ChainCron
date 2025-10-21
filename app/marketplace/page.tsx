@@ -66,16 +66,26 @@ export default function MarketplacePage() {
         </div>
 
         {/* AI Recommendations Section */}
-        {showAIRecommendations && (
-          <motion.div
-            className="mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <AIRecommendations userAddress="0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6" />
-          </motion.div>
-        )}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold">AI-Powered Recommendations</h2>
+            <button
+              onClick={() => setShowAIRecommendations(!showAIRecommendations)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {showAIRecommendations ? 'Hide' : 'Show'} AI Recommendations
+            </button>
+          </div>
+          {showAIRecommendations && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <AIRecommendations userAddress="0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6" />
+            </motion.div>
+          )}
+        </div>
 
         {/* Controls */}
         <div className="flex flex-col lg:flex-row gap-6 mb-8">

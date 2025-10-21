@@ -56,7 +56,10 @@ function WalletErrorBoundary({ children }: { children: React.ReactNode }) {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       if (event.reason?.message?.includes('Connection interrupted') || 
           event.reason?.message?.includes('WalletConnect') ||
-          event.reason?.message?.includes('subscribe')) {
+          event.reason?.message?.includes('subscribe') ||
+          event.reason?.message?.includes('jsonrpc-provider') ||
+          event.reason?.message?.includes('ws-connection') ||
+          event.reason?.message?.includes('WebSocket')) {
         console.warn('WalletConnect connection interrupted, this is normal:', event.reason)
         event.preventDefault() // Prevent the error from showing in console
       }
