@@ -13,6 +13,8 @@
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",
     "@nomicfoundation/hardhat-ethers": "^4.0.2",
     "@radix-ui/react-avatar": "^1.1.10",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-tabs": "^1.1.13",
     "@rainbow-me/rainbowkit": "^2.1.0",
     "@tanstack/react-query": "^5.28.4",
     "chai": "^6.2.0",
