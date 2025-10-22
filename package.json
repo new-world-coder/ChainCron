@@ -10,12 +10,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",
-    "@nomicfoundation/hardhat-ethers": "^4.0.2",
     "@radix-ui/react-avatar": "^1.1.10",
     "@rainbow-me/rainbowkit": "^2.1.0",
     "@tanstack/react-query": "^5.28.4",
-    "chai": "^6.2.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.0.5",
     "lucide-react": "^0.363.0",
@@ -29,12 +26,15 @@
     "wagmi": "^2.12.21"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",
+    "@nomicfoundation/hardhat-ethers": "^3.1.0",
     "@nomicfoundation/hardhat-toolbox": "^6.1.0",
     "@openzeppelin/contracts": "^5.4.0",
     "@types/node": "^20.14.8",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
+    "chai": "^4.5.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.5",
     "hardhat": "^2.19.0",

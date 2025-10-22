@@ -14,6 +14,8 @@ export function Navbar() {
     { href: '/marketplace', label: 'Marketplace' },
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/creator', label: 'Creator' },
+    { href: '/pricing', label: 'Pricing' },
+    { href: '/faq', label: 'FAQ' },
     { href: '/builder', label: 'Builder' },
     { href: '/onboarding', label: 'Onboarding' },
     { href: '/risk-analysis', label: 'Risk Analysis' },
