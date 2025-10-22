@@ -1,25 +1,9 @@
 {
   "version": 2,
-  "name": "chaincron",
   "builds": [
     {
-      "src": "Dockerfile.prod",
-      "use": "@vercel/docker"
+      "src": "package.json",
+      "use": "@vercel/next"
     }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "NEXT_TELEMETRY_DISABLED": "1"
-  },
-  "functions": {
-    "app/**/*.tsx": {
-      "runtime": "nodejs20.x"
-    }
-  }
+  ]
 }
