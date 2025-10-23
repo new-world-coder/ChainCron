@@ -10,10 +10,10 @@ import { http } from 'wagmi'
 import { useEffect } from 'react'
 import { GlobalErrorHandler } from '@/components/GlobalErrorHandler'
 
-// Forte testnet configuration
-const forteTestnet = defineChain({
-  id: 5245293,
-  name: 'Forte Testnet',
+// Ethereum Sepolia testnet configuration (Vercel-ready)
+const sepoliaTestnet = defineChain({
+  id: 11155111,
+  name: 'Sepolia',
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
@@ -21,11 +21,11 @@ const forteTestnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.forte-chain.io'],
+      http: ['https://rpc.sepolia.org'],
     },
   },
   blockExplorers: {
-    default: { name: 'Explorer', url: 'https://explorer.forte-chain.io' },
+    default: { name: 'Etherscan', url: 'https://sepolia.etherscan.io' },
   },
   testnet: true,
 })
@@ -33,9 +33,9 @@ const forteTestnet = defineChain({
 const config = getDefaultConfig({
   appName: 'ChainCron',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default',
-  chains: [forteTestnet],
+  chains: [sepoliaTestnet],
   transports: {
-    [forteTestnet.id]: http(),
+    [sepoliaTestnet.id]: http(),
   },
 })
 
