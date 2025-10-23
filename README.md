@@ -247,10 +247,20 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## 📄 Documentation
 
-- **[Architecture Guide](ARCHITECTURE.md)**: Detailed system architecture
-- **[API Documentation](API_DOCS.md)**: Complete API reference
-- **[Demo Guide](DEMO_GUIDE.md)**: Step-by-step demo instructions
-- **[Smart Contract Docs](contracts/README.md)**: Contract documentation
+All documentation has been organized in the [`docs/`](docs/) folder for better project structure:
+
+- **[📖 Complete Documentation](docs/README.md)** - Full documentation index
+- **[🏗️ Architecture Guide](docs/ARCHITECTURE.md)** - Detailed system architecture
+- **[🔌 API Documentation](docs/API_DOCS.md)** - Complete API reference
+- **[🚀 Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Production deployment instructions
+- **[🧪 Testing Report](docs/TESTING_REPORT.md)** - Comprehensive testing documentation
+- **[📊 Project Status](docs/PROJECT_STATUS.md)** - Current development status
+- **[🎬 Demo Guide](docs/DEMO_GUIDE.md)** - Step-by-step demo instructions
+- **[💼 Pitch Deck](docs/PITCH_DECK.md)** - Business presentation materials
+
+### 🤖 AI-Zapier Features
+- **[✨ AI-Zapier Implementation](docs/AI_ZAPIER_IMPLEMENTATION_SUMMARY.md)** - Complete AI automation platform
+- **[🏆 Competition Strategy](docs/ChainCron%20Competitive%20Enhancement%20Prom.md)** - Ready for "Best Killer App on Flow" bounty
 
 ## 🛡️ Security
 
