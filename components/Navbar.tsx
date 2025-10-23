@@ -13,6 +13,7 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const navItems = [
+    { href: '/ai-zapier', label: 'AI-Zapier', featured: true },
     { href: '/marketplace', label: 'Marketplace' },
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/creator', label: 'Creator' },
@@ -51,9 +52,12 @@ export function Navbar() {
                     pathname === item.href
                       ? 'text-primary'
                       : 'text-muted-foreground'
-                  }`}
+                  } ${item.featured ? 'font-semibold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent' : ''}`}
                 >
                   {item.label}
+                  {item.featured && (
+                    <span className="ml-1 text-xs">✨</span>
+                  )}
                 </Link>
               ))}
             </div>

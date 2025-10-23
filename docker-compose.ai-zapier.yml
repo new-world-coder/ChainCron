@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # ChainCron AI-Zapier Application
+  chaincron-ai-zapier:
+    build:
+      context: .
+      dockerfile: Dockerfile.ai-zapier
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_BASE_URL=http://localhost:3000
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - FLOW_NETWORK=testnet
+      - DATABASE_URL=${DATABASE_URL:-sqlite://./data/chaincron.db}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis for caching and session storage
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # PostgreSQL database (optional, for production)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=chaincron
+      - POSTGRES_USER=chaincron
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-chaincron123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    profiles:
+      - production
+
+  # Nginx reverse proxy (optional, for production)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - chaincron-ai-zapier
+    restart: unless-stopped
+    profiles:
+      - production
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  default:
+    name: chaincron-network
