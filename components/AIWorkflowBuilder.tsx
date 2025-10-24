@@ -341,7 +341,7 @@ export function AIWorkflowBuilder({ onWorkflowGenerated }: AIWorkflowBuilderProp
           <div className="bg-primary text-primary-foreground rounded-lg px-4 py-2 max-w-xs">
             <p className="text-sm">{message.content}</p>
             <p className="text-xs opacity-75 mt-1">
-              {message.timestamp.toLocaleTimeString()}
+              {new Date(message.timestamp).toISOString().slice(11, 19)}
             </p>
           </div>
         </motion.div>
@@ -361,7 +361,7 @@ export function AIWorkflowBuilder({ onWorkflowGenerated }: AIWorkflowBuilderProp
           <div className="bg-muted rounded-lg px-4 py-2 max-w-md">
             <p className="text-sm">{message.content}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              {message.timestamp.toLocaleTimeString()}
+              {new Date(message.timestamp).toISOString().slice(11, 19)}
             </p>
             
             {/* Generated Workflow Preview */}
