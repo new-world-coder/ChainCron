@@ -58,6 +58,13 @@ export function useSubscription() {
   // Function to subscribe to a workflow
   const subscribe = useCallback(async (workflowId: number, price: bigint) => {
     try {
+      // In development mode, simulate subscription without blockchain calls
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Development mode: Simulating subscription to workflow', workflowId)
+        toast.success('Successfully subscribed to workflow! (Development Mode)')
+        return
+      }
+
       if (!subscribeToWorkflow) {
         throw new Error('Contract not initialized')
       }
@@ -78,6 +85,13 @@ export function useSubscription() {
   // Function to cancel subscription
   const cancel = useCallback(async (workflowId: number) => {
     try {
+      // In development mode, simulate cancellation without blockchain calls
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Development mode: Simulating cancellation of workflow', workflowId)
+        toast.success('Successfully cancelled subscription! (Development Mode)')
+        return
+      }
+
       if (!cancelSubscription) {
         throw new Error('Contract not initialized')
       }

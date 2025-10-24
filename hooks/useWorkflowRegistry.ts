@@ -48,6 +48,13 @@ export function useWorkflowRegistry() {
     category: string
   ) => {
     try {
+      // In development mode, simulate registration without blockchain calls
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Development mode: Simulating workflow registration', name)
+        toast.success('Workflow registered successfully! (Development Mode)')
+        return
+      }
+
       if (!registerWorkflow) {
         throw new Error('Contract not initialized')
       }
