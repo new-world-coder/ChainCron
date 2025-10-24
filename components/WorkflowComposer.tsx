@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus,
@@ -248,6 +248,13 @@ export function WorkflowComposer() {
 
   const { executeWorkflowOnTestnet, isExecuting: isTestnetExecuting } = useTestnetOperations()
 
+  // Auto-enable testnet mode in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      setIsTestnetEnabled(true)
+    }
+  }, [])
+
   const handleSelectTemplate = (template: ComposedWorkflow) => {
     setSelectedTemplate(template)
     setCurrentWorkflow({ ...template, id: `workflow-${Date.now()}` })
@@ -273,6 +280,31 @@ export function WorkflowComposer() {
 
   const handleExecuteWorkflow = async () => {
     if (!currentWorkflow) return
+    
+    // In development mode, always use local simulation to avoid MetaMask circuit breaker
+    if (process.env.NODE_ENV === 'development') {
+      // Local simulation execution
+      setIsExecuting(true)
+      setExecutionStep(0)
+      
+      const steps = [
+        'Initializing workflow...',
+        'Validating parameters...',
+        'Connecting to Flow blockchain...',
+        'Executing workflow steps...',
+        'Monitoring execution...',
+        'Workflow completed successfully!'
+      ]
+      
+      for (let i = 0; i < steps.length; i++) {
+        setExecutionStep(i)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+      
+      setIsExecuting(false)
+      setExecutionStep(0)
+      return
+    }
     
     if (isTestnetEnabled) {
       // Execute on testnet
@@ -392,7 +424,14 @@ export function WorkflowComposer() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>{currentWorkflow.name}</CardTitle>
+                  <div className="flex items-center gap-3">
+                    <CardTitle>{currentWorkflow.name}</CardTitle>
+                    {process.env.NODE_ENV === 'development' && (
+                      <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                        Dev Mode
+                      </Badge>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
