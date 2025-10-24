@@ -94,7 +94,7 @@ const MOCK_SHARED_WORKFLOWS: SharedWorkflow[] = [
       id: 'user-1',
       name: 'FlowDeFi',
       avatar: '/avatars/flowdefi.jpg',
-      verified: true,
+    verified: true,
       followers: 12500,
     },
     workflow: {
@@ -134,7 +134,7 @@ const MOCK_SHARED_WORKFLOWS: SharedWorkflow[] = [
       id: 'user-2',
       name: 'NFTMaster',
       avatar: '/avatars/nftmaster.jpg',
-      verified: true,
+    verified: true,
       followers: 8900,
     },
     workflow: {
@@ -155,7 +155,7 @@ const MOCK_SHARED_WORKFLOWS: SharedWorkflow[] = [
       rating: 4.6,
     },
     social: {
-      isLiked: true,
+        isLiked: true,
       isBookmarked: false,
       isFollowing: false,
     },
@@ -195,7 +195,7 @@ const MOCK_SHARED_WORKFLOWS: SharedWorkflow[] = [
       rating: 4.7,
     },
     social: {
-      isLiked: false,
+    isLiked: false,
       isBookmarked: true,
       isFollowing: true,
     },
@@ -345,9 +345,9 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
         case 'advanced': return 'bg-red-100 text-red-800 border-red-200'
         default: return 'bg-gray-100 text-gray-800 border-gray-200'
       }
-    }
+  }
 
-    return (
+  return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -361,18 +361,18 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
                 <Avatar className="w-10 h-10">
                   <AvatarImage src={workflow.creator.avatar} />
                   <AvatarFallback>{workflow.creator.name[0]}</AvatarFallback>
-                </Avatar>
+          </Avatar>
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium">{workflow.creator.name}</h3>
                     {workflow.creator.verified && (
                       <CheckCircle className="w-4 h-4 text-blue-500" />
-                    )}
-                  </div>
+              )}
+            </div>
                   <p className="text-xs text-muted-foreground">
                     {workflow.creator.followers.toLocaleString()} followers
                   </p>
-                </div>
+              </div>
               </div>
               <div className="flex items-center gap-1">
                 {workflow.isFeatured && (
@@ -405,7 +405,7 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Zap className="w-3 h-3" />
                   <span>Gas Cost</span>
-                </div>
+            </div>
                 <div className="font-medium text-sm">{workflow.workflow.estimatedGas}</div>
               </div>
               <div className="space-y-1">
@@ -414,7 +414,7 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
                   <span>Success Rate</span>
                 </div>
                 <div className="font-medium text-sm">{workflow.workflow.successRate}%</div>
-              </div>
+                </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Eye className="w-3 h-3" />
@@ -430,7 +430,7 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
                 <div className="font-medium text-sm">{workflow.stats.rating}/5</div>
               </div>
             </div>
-
+            
             {/* Difficulty */}
             <div className="mb-4">
               <Badge 
@@ -461,7 +461,7 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
                   className={`flex items-center gap-1 ${workflow.social.isBookmarked ? 'text-blue-500' : ''}`}
                 >
                   <Bookmark className={`w-4 h-4 ${workflow.social.isBookmarked ? 'fill-current' : ''}`} />
-                </Button>
+            </Button>
                 
                 <Button
                   size="sm"
@@ -482,7 +482,7 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
                 >
                   <Eye className="w-4 h-4 mr-1" />
                   View
-                </Button>
+                      </Button>
                 <Button
                   size="sm"
                   onClick={() => {
@@ -493,14 +493,14 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
                 >
                   <Play className="w-4 h-4 mr-1" />
                   Use
-                </Button>
-              </div>
+                      </Button>
+                    </div>
             </div>
           </CardContent>
-        </Card>
+      </Card>
       </motion.div>
-    )
-  }
+  )
+}
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -522,16 +522,16 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
               { id: 'popular', label: 'Popular', icon: TrendingUp },
               { id: 'verified', label: 'Verified', icon: CheckCircle },
             ].map(({ id, label, icon: Icon }) => (
-              <Button
+          <Button
                 key={id}
                 variant={filter === id ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setFilter(id as any)}
-                className="flex items-center gap-2"
-              >
+            className="flex items-center gap-2"
+          >
                 <Icon className="w-4 h-4" />
                 {label}
-              </Button>
+          </Button>
             ))}
           </div>
         </CardContent>
@@ -562,7 +562,7 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
               onClick={(e) => e.stopPropagation()}
             >
               <h3 className="text-lg font-semibold mb-4">Share Workflow</h3>
-              <div className="space-y-4">
+      <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium">Title</label>
                   <Input
@@ -570,7 +570,7 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
                     onChange={(e) => setShareTitle(e.target.value)}
                     placeholder={selectedWorkflow.title}
                   />
-                </div>
+                  </div>
                 <div>
                   <label className="text-sm font-medium">Description</label>
                   <Textarea
@@ -579,7 +579,7 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
                     placeholder={selectedWorkflow.description}
                     rows={3}
                   />
-                </div>
+                      </div>
                 <div className="flex gap-2">
                   <Button
                     onClick={() => handleShare(selectedWorkflow)}
@@ -587,13 +587,13 @@ export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeatures
                   >
                     <Share2 className="w-4 h-4 mr-2" />
                     Share
-                  </Button>
+                    </Button>
                   <Button
                     variant="outline"
                     onClick={() => setShowShareModal(false)}
                   >
                     Cancel
-                  </Button>
+                    </Button>
                 </div>
               </div>
             </motion.div>
