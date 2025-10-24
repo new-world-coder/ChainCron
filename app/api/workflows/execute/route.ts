@@ -67,11 +67,22 @@ async function executeWorkflow(workflowId: string, userId?: string, parameters: 
   console.log('Executing workflow:', workflowId, 'for user:', userId, 'on chain:', chainId)
   console.log('Parameters:', parameters)
   
+  // Check if testnet mode is enabled
+  const isTestnetEnabled = process.env.NODE_ENV === 'development' || 
+                          process.env.NEXT_PUBLIC_ENABLE_TESTNET === 'true'
+  
+  if (!isTestnetEnabled) {
+    throw new Error('Testnet mode is not enabled. Please enable testnet mode to execute workflows.')
+  }
+  
   // In a real implementation, this would:
   // 1. Validate the workflow
   // 2. Check user permissions
   // 3. Execute on the blockchain
   // 4. Monitor execution status
+  
+  // Simulate execution delay
+  await new Promise(resolve => setTimeout(resolve, 1000))
   
   return executionId
 }
