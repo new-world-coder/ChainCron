@@ -1,22 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AutomationService } from '@/lib/automation/AutomationService'
+import { automationService } from '@/lib/automation/serviceInstance'
 import { WorkflowConfig } from '@/lib/automation/WorkflowExecutor'
-
-// Mock provider for demonstration
-const mockProvider = {
-  getFeeData: async () => ({ gasPrice: BigInt(20000000000) })
-}
-
-// Initialize automation service
-const automationService = new AutomationService({
-  provider: mockProvider,
-  maxConcurrentExecutions: 10,
-  retryDelay: 60000,
-  gasPriceThreshold: 50
-})
-
-// Start the service
-automationService.start()
 
 // GET /api/automation/status
 export async function GET(request: NextRequest) {
@@ -67,44 +51,14 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT /api/automation/workflows/[id]
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const workflowId = parseInt(params.id)
-    const updates = await request.json()
-    
-    await automationService.updateWorkflow(workflowId, updates)
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Workflow updated successfully'
-    })
-  } catch (error) {
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
-  }
-}
-
-// DELETE /api/automation/workflows/[id]
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const workflowId = parseInt(params.id)
-    
-    await automationService.unregisterWorkflow(workflowId)
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Workflow unregistered successfully'
-    })
-  } catch (error) {
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
-  }
-}
-
-// Additional automation endpoints would be in separate route files
-// This file only handles the main automation API endpoints
+// Additional automation endpoints are in separate route files:
+// - GET /api/automation/workflows - app/api/automation/workflows/route.ts
+// - GET /api/automation/history - app/api/automation/history/route.ts
+// - GET /api/automation/stats - app/api/automation/stats/route.ts
+// - GET /api/automation/analytics - app/api/automation/analytics/route.ts
+// - PUT /api/automation/[id] - app/api/automation/[id]/route.ts
+// - DELETE /api/automation/[id] - app/api/automation/[id]/route.ts
+// - POST /api/automation/[id]/execute - app/api/automation/[id]/execute/route.ts
+// - POST /api/automation/pause - app/api/automation/pause/route.ts
+// - POST /api/automation/resume - app/api/automation/resume/route.ts
+// - POST /api/automation/emergency-stop - app/api/automation/emergency-stop/route.ts
