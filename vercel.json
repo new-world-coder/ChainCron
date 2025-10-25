@@ -1,11 +1,21 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
+  "functions": {
+    "app/api/automation/**/*.ts": {
+      "maxDuration": 30
+    },
+    "app/api/workflows/**/*.ts": {
+      "maxDuration": 30
+    },
+    "app/api/workflows/execute/**/*.ts": {
+      "maxDuration": 60
+    },
+    "app/api/workflows/share/**/*.ts": {
+      "maxDuration": 30
+    },
+    "app/api/health/**/*.ts": {
+      "maxDuration": 10
     }
-  ],
+  },
   "routes": [
     {
       "src": "/ai-zapier",
@@ -20,19 +30,23 @@
       "dest": "/api/health"
     }
   ],
-  "env": {
-    "NODE_ENV": "production",
-    "NEXT_PUBLIC_BASE_URL": "https://chaincron-ai-zapier.vercel.app"
-  },
-  "functions": {
-    "app/api/workflows/route.ts": {
-      "maxDuration": 30
-    },
-    "app/api/workflows/execute/route.ts": {
-      "maxDuration": 60
-    },
-    "app/api/workflows/share/route.ts": {
-      "maxDuration": 30
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "origin-when-cross-origin"
+        }
+      ]
     }
-  }
+  ]
 }
