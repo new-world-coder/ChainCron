@@ -56,7 +56,7 @@ export default function RiskAnalysisPage() {
                     {workflow.category}
                   </span>
                   <span className="text-sm text-muted-foreground">
-                    {workflow.subscribers} subscribers
+                    {(workflow as any).subscribers || 0} subscribers
                   </span>
                 </div>
               </motion.button>

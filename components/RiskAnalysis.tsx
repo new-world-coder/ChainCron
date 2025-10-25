@@ -321,7 +321,7 @@ export function RiskAnalysis({ workflowId, className = '' }: RiskAnalysisProps) 
                                 {subKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
                               </span>
                               <span className="ml-2 font-medium text-gray-900">
-                                {typeof value === 'number' ? value.toLocaleString() : value}
+                                {typeof value === 'number' ? value.toLocaleString() : String(value)}
                               </span>
                             </div>
                           )

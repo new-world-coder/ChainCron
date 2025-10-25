@@ -245,7 +245,7 @@ export function CreatorProfile({ creator }: { creator: typeof MOCK_CREATORS[0] }
                 Copy Address
               </Button>
               {creator.socialLinks.twitter && (
-                <Button variant="outline" size="sm" asChild>
+                <Button variant="outline" size="sm">
                   <a href={creator.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="w-4 h-4 mr-1" />
                     Twitter

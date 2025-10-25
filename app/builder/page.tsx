@@ -393,7 +393,7 @@ export default function WorkflowBuilderPage() {
                         key={block.id}
                         className="p-3 bg-background border border-border rounded-lg cursor-grab hover:border-primary/50 transition-colors"
                         draggable
-                        onDragStart={(e) => handleDragStart(block, e)}
+                        onDragStart={(e) => handleDragStart(block, e as unknown as React.DragEvent)}
                         onDragEnd={handleDragEnd}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
