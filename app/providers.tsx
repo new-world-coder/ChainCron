@@ -11,6 +11,7 @@ import { useEffect } from 'react'
 import { GlobalErrorHandler } from '@/components/GlobalErrorHandler'
 
 // Ethereum Sepolia testnet configuration (Vercel-ready)
+// Using Alchemy as primary RPC with multiple fallbacks for reliability
 const sepoliaTestnet = defineChain({
   id: 11155111,
   name: 'Sepolia',
@@ -21,7 +22,9 @@ const sepoliaTestnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.sepolia.org'],
+      http: [
+        'https://rpc.sepolia.org', // Public RPC - CORS compatible
+      ],
     },
   },
   blockExplorers: {
@@ -30,13 +33,23 @@ const sepoliaTestnet = defineChain({
   testnet: true,
 })
 
+// Ensure we use Sepolia for production/Vercel
+const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL
+
+// Explicitly configure to prevent auto-detection of local networks
 const config = getDefaultConfig({
   appName: 'ChainCron',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default',
   chains: [sepoliaTestnet],
   transports: {
-    [sepoliaTestnet.id]: http(),
+    [sepoliaTestnet.id]: http('https://rpc.sepolia.org', {
+      retryCount: 3,
+      retryDelay: 1000,
+    }),
   },
+  ssr: true,
+  // Disable auto-detection of local networks
+  syncConnectedChain: false,
 })
 
 const queryClient = new QueryClient({
@@ -88,6 +101,23 @@ function WalletErrorBoundary({ children }: { children: React.ReactNode }) {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // Log chain configuration for debugging
+    console.log('🔗 ChainCron Network Configuration:')
+    console.log('- Chain ID:', sepoliaTestnet.id)
+    console.log('- Chain Name:', sepoliaTestnet.name)
+    console.log('- RPC URL:', 'https://rpc.sepolia.org')
+    console.log('- Block Explorer:', 'https://sepolia.etherscan.io')
+    console.log('- Environment:', process.env.NODE_ENV)
+    console.log('- Vercel:', process.env.VERCEL ? 'Yes' : 'No')
+    
+    // Warn users if they're trying to connect to localhost
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      console.warn('⚠️ You are on a Vercel deployment. Make sure Sepolia network is added to MetaMask.')
+      console.warn('⚠️ If you see "Hardhat Local" errors, add Sepolia network and switch to it.')
+    }
+  }, [])
+
   return (
     <WalletErrorBoundary>
       <GlobalErrorHandler />

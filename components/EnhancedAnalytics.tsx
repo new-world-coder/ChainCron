@@ -20,7 +20,6 @@ import {
   ResponsiveContainer,
   ScatterChart,
   Scatter,
-  Heatmap,
 } from 'recharts'
 import {
   TrendingUp,

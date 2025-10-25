@@ -28,6 +28,7 @@ import {
   Award,
   Flame,
   Crown,
+  DollarSign,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -36,6 +37,59 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+
+// Mock data for creators and workflows
+const MOCK_CREATORS = [
+  {
+    id: 'creator-1',
+    name: 'FlowDeFi',
+    avatar: '/avatars/flowdefi.jpg',
+    address: '0x1234...5678',
+    bio: 'DeFi enthusiast and automation expert',
+    verified: true,
+    followers: 12500,
+    workflows: 15,
+    totalRevenue: 25000,
+    badges: ['DeFi Expert', 'Top Creator'],
+    socialLinks: {
+      twitter: 'https://twitter.com/flowdefi'
+    }
+  },
+  {
+    id: 'creator-2',
+    name: 'NFTMaster',
+    avatar: '/avatars/nftmaster.jpg',
+    address: '0x2345...6789',
+    bio: 'NFT creator and automation specialist',
+    verified: true,
+    followers: 8900,
+    workflows: 12,
+    totalRevenue: 18000,
+    badges: ['NFT Expert', 'Community Leader'],
+    socialLinks: {
+      twitter: 'https://twitter.com/nftmaster'
+    }
+  }
+]
+
+const MOCK_WORKFLOWS = [
+  {
+    id: 'workflow-1',
+    name: 'Auto-Stake FLOW Rewards',
+    description: 'Automatically stake your FLOW rewards daily',
+    estimatedGas: '0.003 FLOW',
+    successRate: 98,
+    category: 'defi',
+    difficulty: 'beginner',
+    tags: ['staking', 'compound', 'rewards', 'daily'],
+  }
+]
+
+// Toast function (mock implementation)
+const toast = {
+  success: (message: string) => console.log('Success:', message),
+  error: (message: string) => console.log('Error:', message)
+}
 
 interface SharedWorkflow {
   id: string
@@ -214,6 +268,130 @@ export function SocialFeed() {
 
 export function Leaderboards() {
   return <SocialFeatures onWorkflowUse={() => {}} onWorkflowFork={() => {}} />
+}
+
+const MOCK_FEED = [
+  {
+    id: 'post1',
+    type: 'earnings',
+    user: MOCK_CREATORS[0],
+    content: 'Just earned $500 this week using my Auto-Compound workflow! 🎉',
+    workflow: MOCK_WORKFLOWS[0],
+    earnings: 500,
+    createdAt: '2024-06-15 14:30',
+    likes: 47,
+    comments: 12,
+    shares: 8,
+    isLiked: false,
+  },
+  {
+    id: 'post2',
+    type: 'workflow',
+    user: MOCK_CREATORS[1],
+    content: 'Just released v2 of my Yield Optimizer with 20% lower gas costs!',
+    workflow: { name: 'Yield Optimizer v2', id: 'workflow4' },
+    createdAt: '2024-06-15 12:15',
+    likes: 23,
+    comments: 5,
+    shares: 3,
+    isLiked: true,
+  },
+  {
+    id: 'post3',
+    type: 'milestone',
+    user: MOCK_CREATORS[0],
+    content: '🎉 10,000th execution of my Auto-Compound workflow!',
+    workflow: MOCK_WORKFLOWS[0],
+    milestone: '10,000 executions',
+    createdAt: '2024-06-15 10:45',
+    likes: 89,
+    comments: 18,
+    shares: 15,
+    isLiked: false,
+  },
+]
+
+// Creator Profile Component
+export function CreatorProfile({ creator }: { creator: typeof MOCK_CREATORS[0] }) {
+  const [isFollowing, setIsFollowing] = useState(false)
+
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing)
+    toast.success(isFollowing ? 'Unfollowed' : 'Following')
+  }
+
+  const handleCopyAddress = () => {
+    navigator.clipboard.writeText(creator.address)
+    toast.success('Address copied to clipboard')
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start gap-4">
+          <Avatar className="w-16 h-16">
+            <AvatarImage src={creator.avatar} />
+            <AvatarFallback>{creator.name[0]}</AvatarFallback>
+          </Avatar>
+          
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="text-xl font-bold">{creator.name}</h2>
+              {creator.verified && (
+                <Badge variant="default" className="text-xs">
+                  <Award className="w-3 h-3 mr-1" />
+                  Verified
+                </Badge>
+              )}
+            </div>
+            
+            <p className="text-muted-foreground mb-3">{creator.bio}</p>
+            
+            <div className="flex items-center gap-4 text-sm mb-3">
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                <span>{creator.followers.toLocaleString()} followers</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <GitFork className="w-4 h-4" />
+                <span>{creator.workflows} workflows</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <DollarSign className="w-4 h-4" />
+                <span>${creator.totalRevenue.toLocaleString()} revenue</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 mb-3">
+              {creator.badges.map((badge) => (
+                <Badge key={badge} variant="secondary" className="text-xs">
+                  {badge}
+                </Badge>
+              ))}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button onClick={handleFollow} variant={isFollowing ? 'outline' : 'default'}>
+                {isFollowing ? 'Following' : 'Follow'}
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleCopyAddress}>
+                <Copy className="w-4 h-4 mr-1" />
+                Copy Address
+              </Button>
+              {creator.socialLinks.twitter && (
+                <Button variant="outline" size="sm">
+                  <a href={creator.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-4 h-4 mr-1" />
+                    Twitter
+                  </a>
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </CardHeader>
+    </Card>
+  )
 }
 
 export function SocialFeatures({ onWorkflowUse, onWorkflowFork }: SocialFeaturesProps) {

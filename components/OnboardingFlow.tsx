@@ -41,6 +41,7 @@ export function OnboardingFlow({ isOpen, onClose }: OnboardingFlowProps) {
   const [walletConnected, setWalletConnected] = useState(false)
   const [automationAmount, setAutomationAmount] = useState(80)
   const [isActivating, setIsActivating] = useState(false)
+  const [isProcessingSelection, setIsProcessingSelection] = useState(false)
 
   const totalSteps = 5
 
@@ -211,7 +212,16 @@ export function OnboardingFlow({ isOpen, onClose }: OnboardingFlowProps) {
                           ? 'ring-2 ring-blue-500 bg-blue-500/20'
                           : 'bg-white/10 border-white/20 hover:bg-white/20'
                       }`}
-                      onClick={() => setSelectedGoal(goal.id)}
+                      onClick={() => {
+                        if (isProcessingSelection) return // Prevent multiple clicks
+                        setIsProcessingSelection(true)
+                        setSelectedGoal(goal.id)
+                        // Auto-progress to next step after a short delay for visual feedback
+                        setTimeout(() => {
+                          nextStep()
+                          setIsProcessingSelection(false)
+                        }, 800)
+                      }}
                     >
                       <CardContent className="p-6 text-center">
                         <div className="flex justify-center mb-4">
@@ -222,6 +232,12 @@ export function OnboardingFlow({ isOpen, onClose }: OnboardingFlowProps) {
                         <Icon className="w-12 h-12 text-white mx-auto mb-4" />
                         <h3 className="text-lg font-semibold text-white mb-2">{goal.title}</h3>
                         <p className="text-gray-300">{goal.description}</p>
+                        {isProcessingSelection && selectedGoal === goal.id && (
+                          <div className="mt-3 flex items-center justify-center gap-2 text-blue-400">
+                            <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                            <span className="text-sm">Processing...</span>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   )
@@ -233,10 +249,20 @@ export function OnboardingFlow({ isOpen, onClose }: OnboardingFlowProps) {
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
-                <Button variant="ghost" onClick={nextStep} className="text-white hover:bg-white/10">
-                  Skip this step
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                <div className="text-center">
+                  <p className="text-sm text-gray-400 mb-2">
+                    {selectedGoal ? 'Selected! Auto-advancing...' : 'Click any option above to continue'}
+                  </p>
+                  <Button 
+                    variant="ghost" 
+                    onClick={nextStep} 
+                    className="text-white hover:bg-white/10"
+                    disabled={isProcessingSelection}
+                  >
+                    Skip this step
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
               </div>
             </div>
           )}
