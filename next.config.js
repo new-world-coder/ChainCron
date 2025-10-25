@@ -29,6 +29,29 @@ const nextConfig = {
       }
     }
     
+    // Handle pino-pretty module resolution
+    try {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'pino-pretty': require.resolve('pino-pretty'),
+      }
+    } catch (error) {
+      // Fallback if pino-pretty is not found
+      console.warn('pino-pretty not found, using fallback')
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'pino-pretty': false,
+      }
+    }
+    
+    // Add externals for server-side rendering
+    if (isServer) {
+      config.externals = config.externals || []
+      config.externals.push({
+        'pino-pretty': 'commonjs pino-pretty',
+      })
+    }
+    
     // Ignore WalletConnect warnings
     config.ignoreWarnings = [
       /Failed to parse source map/,
