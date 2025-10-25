@@ -41,26 +41,38 @@ const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL
 // Use safe config with error handling
 let config: ReturnType<typeof getDefaultConfig>
 try {
-  config = getDefaultConfig({
-    appName: 'ChainCron',
-    projectId: appConfig.walletConnect.projectId,
-    chains: [sepoliaTestnet],
-    transports: {
-      [sepoliaTestnet.id]: http(appConfig.chain.rpcUrl, {
-        retryCount: 3,
-        retryDelay: 1000,
-      }),
-    },
-    ssr: true,
-    // Disable auto-detection of local networks
-    syncConnectedChain: false,
-  })
+  // Only use WalletConnect if we have a valid project ID
+  if (appConfig.walletConnect.enabled && appConfig.walletConnect.projectId !== 'default') {
+    config = getDefaultConfig({
+      appName: 'ChainCron',
+      projectId: appConfig.walletConnect.projectId,
+      chains: [sepoliaTestnet],
+      transports: {
+        [sepoliaTestnet.id]: http(appConfig.chain.rpcUrl, {
+          retryCount: 3,
+          retryDelay: 1000,
+        }),
+      },
+      ssr: true,
+      // Disable auto-detection of local networks
+      syncConnectedChain: false,
+    })
+  } else {
+    // Use minimal config without WalletConnect to avoid 403 errors
+    config = getDefaultConfig({
+      appName: 'ChainCron',
+      projectId: '000000000000000000000000000000000000000000', // Dummy project ID to prevent 403
+      chains: [sepoliaTestnet],
+      ssr: true,
+      syncConnectedChain: false,
+    })
+  }
 } catch (error) {
   // Fallback config if initialization fails
   console.warn('Failed to initialize wallet config, using minimal config:', error)
   config = getDefaultConfig({
     appName: 'ChainCron',
-    projectId: 'default',
+    projectId: '000000000000000000000000000000000000000000', // Dummy project ID to prevent 403
     chains: [sepoliaTestnet],
     ssr: true,
     syncConnectedChain: false,

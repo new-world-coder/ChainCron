@@ -44,11 +44,27 @@ const nextConfig = {
       }
     }
     
+    // Handle @react-native-async-storage/async-storage module resolution
+    try {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@react-native-async-storage/async-storage': require.resolve('@react-native-async-storage/async-storage'),
+      }
+    } catch (error) {
+      // Fallback mock for async-storage if not found
+      console.warn('@react-native-async-storage/async-storage not found, using mock')
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@react-native-async-storage/async-storage': false,
+      }
+    }
+    
     // Add externals for server-side rendering
     if (isServer) {
       config.externals = config.externals || []
       config.externals.push({
         'pino-pretty': 'commonjs pino-pretty',
+        '@react-native-async-storage/async-storage': 'commonjs @react-native-async-storage/async-storage',
       })
     }
     
