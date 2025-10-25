@@ -38,6 +38,13 @@ export function useExecutor() {
     executionData: string = '0x'
   ) => {
     try {
+      // In development mode, simulate execution without blockchain calls
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Development mode: Simulating workflow execution', workflowId)
+        toast.success('Workflow executed successfully! (Development Mode)')
+        return
+      }
+
       if (!executeWorkflow) {
         throw new Error('Contract not initialized')
       }

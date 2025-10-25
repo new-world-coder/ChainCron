@@ -28,18 +28,18 @@ const sepoliaTestnet = defineChain({
 
 // Contract addresses - these should be updated after deployment
 const CONTRACT_ADDRESSES = {
-  WORKFLOW_REGISTRY: process.env.NEXT_PUBLIC_WORKFLOW_REGISTRY_ADDRESS || '0x0000000000000000000000000000000000000000',
-  SUBSCRIPTION_MANAGER: process.env.NEXT_PUBLIC_SUBSCRIPTION_MANAGER_ADDRESS || '0x0000000000000000000000000000000000000000',
-  WORKFLOW_EXECUTOR: process.env.NEXT_PUBLIC_WORKFLOW_EXECUTOR_ADDRESS || '0x0000000000000000000000000000000000000000',
-  PAYMENT_TOKEN: process.env.NEXT_PUBLIC_PAYMENT_TOKEN_ADDRESS || '0x0000000000000000000000000000000000000000',
+  WORKFLOW_REGISTRY: process.env.NEXT_PUBLIC_WORKFLOW_REGISTRY_ADDRESS || '0x1234567890123456789012345678901234567890',
+  SUBSCRIPTION_MANAGER: process.env.NEXT_PUBLIC_SUBSCRIPTION_MANAGER_ADDRESS || '0x1234567890123456789012345678901234567890',
+  WORKFLOW_EXECUTOR: process.env.NEXT_PUBLIC_WORKFLOW_EXECUTOR_ADDRESS || '0x1234567890123456789012345678901234567890',
+  PAYMENT_TOKEN: process.env.NEXT_PUBLIC_PAYMENT_TOKEN_ADDRESS || '0x1234567890123456789012345678901234567890',
 } as const
 
 // Testnet configuration
 const TESTNET_CONFIG = {
-  enabled: process.env.NEXT_PUBLIC_ENABLE_TESTNET === 'true',
+  enabled: process.env.NEXT_PUBLIC_ENABLE_TESTNET === 'true' || process.env.NODE_ENV === 'development',
   rpcUrl: process.env.NEXT_PUBLIC_TESTNET_RPC_URL || 'https://rpc.sepolia.org',
   chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '11155111'),
-  isTestnetMode: process.env.NEXT_PUBLIC_TESTNET_MODE === 'true',
+  isTestnetMode: process.env.NEXT_PUBLIC_TESTNET_MODE === 'true' || process.env.NODE_ENV === 'development',
 }
 
 // Mock ABI for testing - replace with actual contract ABI
@@ -144,6 +144,19 @@ export class TestnetUtils {
     args: any[]
   ) {
     try {
+      // In development mode with mock contracts, return a mock simulation result
+      if (process.env.NODE_ENV === 'development') {
+        return {
+          request: {
+            address: contractAddress,
+            abi: MOCK_WORKFLOW_EXECUTOR_ABI,
+            functionName,
+            args,
+          },
+          result: true, // Mock successful simulation
+        }
+      }
+
       return await this.publicClient.simulateContract({
         address: contractAddress,
         abi: MOCK_WORKFLOW_EXECUTOR_ABI,
@@ -183,6 +196,13 @@ export function useTestnetOperations() {
     }
 
     try {
+      // In development mode with mock contracts, skip simulation and just return a mock hash
+      if (process.env.NODE_ENV === 'development') {
+        const mockHash = `0x${Math.random().toString(36).substr(2, 64)}` as `0x${string}`
+        toast.success('Workflow execution simulated successfully! (Development Mode)')
+        return mockHash
+      }
+
       // First simulate the transaction
       await testnetUtils.simulateTransaction(
         CONTRACT_ADDRESSES.WORKFLOW_EXECUTOR as `0x${string}`,
@@ -210,6 +230,22 @@ export function useTestnetOperations() {
   // Get execution logs from testnet
   const getExecutionLogs = async (workflowId?: number) => {
     try {
+      // In development mode, return mock logs
+      if (process.env.NODE_ENV === 'development') {
+        return [
+          {
+            transactionHash: `0x${Math.random().toString(36).substr(2, 64)}`,
+            blockNumber: BigInt(Math.floor(Math.random() * 1000000)),
+            topics: [
+              '0x' + Math.random().toString(36).substr(2, 64), // Event signature
+              `0x${workflowId?.toString(16).padStart(64, '0') || '0'.repeat(64)}`, // Workflow ID
+              `0x${'f39Fd6e51aad88F6F4ce6aB8827279cffFb92266'.padStart(64, '0')}`, // User address
+            ],
+            data: '0x0000000000000000000000000000000000000000000000000000000000000001', // Success
+          }
+        ]
+      }
+
       const logs = await testnetUtils.getContractLogs(
         CONTRACT_ADDRESSES.WORKFLOW_EXECUTOR as `0x${string}`,
         undefined,
@@ -232,6 +268,17 @@ export function useTestnetOperations() {
   // Check if testnet is available
   const checkTestnetStatus = async () => {
     try {
+      // In development mode, return mock status
+      if (process.env.NODE_ENV === 'development') {
+        return {
+          isOnline: true,
+          blockNumber: Math.floor(Math.random() * 1000000),
+          chainId: TESTNET_CONFIG.chainId,
+          rpcUrl: TESTNET_CONFIG.rpcUrl,
+          mode: 'development',
+        }
+      }
+
       const blockNumber = await testnetUtils.getCurrentBlock()
       return {
         isOnline: true,

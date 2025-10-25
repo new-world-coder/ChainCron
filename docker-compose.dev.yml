@@ -1,0 +1,59 @@
+# ChainCron AI-Zapier Development Environment
+# Quick setup for local development and testing
+
+version: '3.8'
+
+services:
+  # ChainCron AI-Zapier Development Server
+  chaincron-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.ai-zapier
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_BASE_URL=http://localhost:3000
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-mock-key-for-dev}
+      - FLOW_NETWORK=testnet
+      - DATABASE_URL=sqlite://./data/chaincron-dev.db
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./data:/app/data
+    depends_on:
+      - redis
+    restart: unless-stopped
+    command: npm run dev
+
+  # Redis for development
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    restart: unless-stopped
+
+  # Mock Flow Testnet Node (for testing)
+  flow-testnet:
+    image: onflow/flow-emulator:latest
+    ports:
+      - "3569:3569"
+    environment:
+      - FLOW_ACCOUNT_KEY_ALGORITHM=ECDSA_P256
+      - FLOW_ACCOUNT_KEY_HASH_ALGORITHM=SHA3_256
+    volumes:
+      - flow_data:/opt/flow
+    restart: unless-stopped
+    profiles:
+      - testnet
+
+volumes:
+  redis_dev_data:
+  flow_data:
+
+networks:
+  default:
+    name: chaincron-dev-network

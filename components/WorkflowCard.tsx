@@ -25,8 +25,9 @@ interface WorkflowCardProps {
 
 export function WorkflowCard({ workflow, onSubscribe }: WorkflowCardProps) {
   const { address } = useAccount()
-  const { subscribe, isSubscribing } = useSubscription()
+  const { subscribe, cancel, isSubscribing } = useSubscription()
   const [isHovered, setIsHovered] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
 
   // Mock risk score calculation - in production, this would come from the risk analysis API
   const getRiskScore = (workflowId: number) => {
@@ -64,10 +65,19 @@ export function WorkflowCard({ workflow, onSubscribe }: WorkflowCardProps) {
     }
 
     try {
-      await subscribe(workflow.id, workflow.price)
-      onSubscribe?.(workflow.id)
+      if (isSubscribed) {
+        // Unsubscribe
+        await cancel(workflow.id)
+        setIsSubscribed(false)
+        onSubscribe?.(workflow.id)
+      } else {
+        // Subscribe
+        await subscribe(workflow.id, workflow.price)
+        setIsSubscribed(true)
+        onSubscribe?.(workflow.id)
+      }
     } catch (error) {
-      console.error('Subscription failed:', error)
+      console.error('Subscription action failed:', error)
     }
   }
 
@@ -125,6 +135,11 @@ export function WorkflowCard({ workflow, onSubscribe }: WorkflowCardProps) {
             {getCategoryIcon(workflow.category)}
             {workflow.category}
           </span>
+          {isSubscribed && (
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+              ✓ Subscribed
+            </span>
+          )}
           {workflow.isActive && (
             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
               Active
@@ -206,6 +221,8 @@ export function WorkflowCard({ workflow, onSubscribe }: WorkflowCardProps) {
           className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
             isSubscribing
               ? 'bg-muted text-muted-foreground cursor-not-allowed'
+              : isSubscribed
+              ? 'bg-red-500 text-white hover:bg-red-600 hover:shadow-lg'
               : 'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg'
           }`}
           onClick={handleSubscribe}
@@ -216,11 +233,11 @@ export function WorkflowCard({ workflow, onSubscribe }: WorkflowCardProps) {
           {isSubscribing ? (
             <>
               <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
-              Subscribing...
+              {isSubscribed ? 'Unsubscribing...' : 'Subscribing...'}
             </>
           ) : (
             <>
-              Subscribe Now
+              {isSubscribed ? 'Unsubscribe' : 'Subscribe Now'}
               <ArrowRight className={`w-4 h-4 transition-transform duration-200 ${isHovered ? 'translate-x-1' : ''}`} />
             </>
           )}
