@@ -3,9 +3,11 @@
 ## ✅ Deployment Complete
 
 **Branch:** `feature/testnet-integration`  
-**Deployment URL:** https://chaincron-60711hzyv-sachins-projects-82454e92.vercel.app  
-**Status:** Successfully deployed  
-**Date:** October 25, 2025
+**Deployment URL:** https://chaincron-izylitaog-sachins-projects-82454e92.vercel.app  
+**Previous URL:** https://chaincron-60711hzyv-sachins-projects-82454e92.vercel.app  
+**Status:** Successfully deployed with wallet connection fix  
+**Date:** October 25, 2025  
+**Last Updated:** October 25, 2025 (Wallet connection fix applied)
 
 ---
 
@@ -130,6 +132,14 @@ vercel --prod
 - MetaMask SDK async-storage warning (harmless)
 - pino-pretty warning (harmless)
 - These are development dependencies not needed in production
+
+### Wallet Connection Issue (Fixed)
+- **Issue**: MetaMask showing "Can't connect to Hardhat Local" error
+- **Cause**: MetaMask trying to connect to local Hardhat network (chain ID 1337)
+- **Solution**: Explicitly configured Sepolia network in providers.tsx
+- **Status**: ✅ Fixed - Now uses Sepolia testnet (chain ID 11155111)
+- **User Action Required**: Users need to add Sepolia network to MetaMask
+- **Guide**: See `docs/WALLET_CONNECTION_FIX.md` for detailed instructions
 
 ### Environment Variables Needed
 Currently using default/mock values. For production:
