@@ -23,9 +23,7 @@ const sepoliaTestnet = defineChain({
   rpcUrls: {
     default: {
       http: [
-        'https://eth-sepolia.g.alchemy.com/v2/demo', // Alchemy fallback
-        'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // Infura fallback
-        'https://rpc.sepolia.org', // Public RPC as last resort
+        'https://rpc.sepolia.org', // Public RPC - CORS compatible
       ],
     },
   },
@@ -44,7 +42,7 @@ const config = getDefaultConfig({
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default',
   chains: [sepoliaTestnet],
   transports: {
-    [sepoliaTestnet.id]: http('https://eth-sepolia.g.alchemy.com/v2/demo', {
+    [sepoliaTestnet.id]: http('https://rpc.sepolia.org', {
       retryCount: 3,
       retryDelay: 1000,
     }),
