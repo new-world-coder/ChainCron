@@ -23,17 +23,23 @@ export class AutomationService {
    */
   async start(): Promise<void> {
     if (this.isRunning) {
-      console.log('⚠️ Automation service is already running')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ Automation service is already running')
+      }
       return
     }
 
-    console.log('🚀 Starting ChainCron Automation Service...')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🚀 Starting ChainCron Automation Service...')
+    }
     
     await this.executor.start()
     this.isRunning = true
     
     this.emit('service:started', { timestamp: Date.now() })
-    console.log('✅ Automation service started successfully')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Automation service started successfully')
+    }
   }
 
   /**
@@ -41,17 +47,23 @@ export class AutomationService {
    */
   async stop(): Promise<void> {
     if (!this.isRunning) {
-      console.log('⚠️ Automation service is not running')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ Automation service is not running')
+      }
       return
     }
 
-    console.log('⏹️ Stopping ChainCron Automation Service...')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('⏹️ Stopping ChainCron Automation Service...')
+    }
     
     await this.executor.stop()
     this.isRunning = false
     
     this.emit('service:stopped', { timestamp: Date.now() })
-    console.log('✅ Automation service stopped')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Automation service stopped')
+    }
   }
 
   /**

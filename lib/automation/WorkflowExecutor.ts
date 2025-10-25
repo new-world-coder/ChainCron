@@ -44,6 +44,7 @@ export class WorkflowExecutor {
   private executionQueue: AutomationJob[] = []
   private isRunning: boolean = false
   private executionHistory: ExecutionResult[] = []
+  private intervalIds: NodeJS.Timeout[] | null = null
 
   constructor(provider: ethers.Provider) {
     this.provider = provider
@@ -132,17 +133,32 @@ export class WorkflowExecutor {
     if (this.isRunning) return
 
     this.isRunning = true
-    console.log('🚀 Automation engine started')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🚀 Automation engine started')
+    }
 
-    // Process execution queue
-    setInterval(async () => {
-      await this.processExecutionQueue()
-    }, 1000) // Check every second
+    // Only use timers in production/server environment
+    if (typeof window === 'undefined') {
+      // Process execution queue
+      const intervalId1 = setInterval(async () => {
+        if (this.isRunning) {
+          await this.processExecutionQueue()
+        }
+      }, 1000) // Check every second
 
-    // Monitor gas prices for optimal execution timing
-    setInterval(async () => {
-      await this.optimizeExecutionTiming()
-    }, 30000) // Check every 30 seconds
+      // Monitor gas prices for optimal execution timing
+      const intervalId2 = setInterval(async () => {
+        if (this.isRunning) {
+          await this.optimizeExecutionTiming()
+        }
+      }, 30000) // Check every 30 seconds
+
+      // Store interval IDs for cleanup
+      if (!this.intervalIds) {
+        this.intervalIds = []
+      }
+      this.intervalIds.push(intervalId1, intervalId2)
+    }
   }
 
   /**
@@ -150,7 +166,16 @@ export class WorkflowExecutor {
    */
   async stop(): Promise<void> {
     this.isRunning = false
-    console.log('⏹️ Automation engine stopped')
+    
+    // Clear all intervals
+    if (this.intervalIds) {
+      this.intervalIds.forEach(id => clearInterval(id))
+      this.intervalIds = null
+    }
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('⏹️ Automation engine stopped')
+    }
   }
 
   /**
