@@ -1,21 +1,4 @@
 {
-  "functions": {
-    "app/api/automation/**/*.ts": {
-      "maxDuration": 30
-    },
-    "app/api/workflows/**/*.ts": {
-      "maxDuration": 30
-    },
-    "app/api/workflows/execute/**/*.ts": {
-      "maxDuration": 60
-    },
-    "app/api/workflows/share/**/*.ts": {
-      "maxDuration": 30
-    },
-    "app/api/health/**/*.ts": {
-      "maxDuration": 10
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
