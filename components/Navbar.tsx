@@ -125,7 +125,11 @@ export function Navbar() {
               return (
                 <div key={group.label} className="relative" ref={dropdownRef}>
                   <button
-                    onClick={() => setActiveDropdown(activeDropdown === group.label ? null : group.label)}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setActiveDropdown(activeDropdown === group.label ? null : group.label)
+                    }}
                     className={`nav-item flex items-center space-x-1 transition-colors hover:text-primary whitespace-nowrap text-sm px-3 py-2 rounded-md navbar-focus ${
                       isActive
                         ? 'text-primary bg-primary/10'
@@ -175,7 +179,11 @@ export function Navbar() {
             
             {/* Mobile menu button */}
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                setIsMobileMenuOpen(!isMobileMenuOpen)
+              }}
               className="lg:hidden p-2 rounded-md hover:bg-muted transition-colors"
             >
               {isMobileMenuOpen ? (
