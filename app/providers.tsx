@@ -11,6 +11,7 @@ import { useEffect } from 'react'
 import { GlobalErrorHandler } from '@/components/GlobalErrorHandler'
 
 // Ethereum Sepolia testnet configuration (Vercel-ready)
+// Using Alchemy as primary RPC with multiple fallbacks for reliability
 const sepoliaTestnet = defineChain({
   id: 11155111,
   name: 'Sepolia',
@@ -21,7 +22,11 @@ const sepoliaTestnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.sepolia.org'],
+      http: [
+        'https://eth-sepolia.g.alchemy.com/v2/demo', // Alchemy fallback
+        'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // Infura fallback
+        'https://rpc.sepolia.org', // Public RPC as last resort
+      ],
     },
   },
   blockExplorers: {
@@ -39,7 +44,10 @@ const config = getDefaultConfig({
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default',
   chains: [sepoliaTestnet],
   transports: {
-    [sepoliaTestnet.id]: http('https://rpc.sepolia.org'),
+    [sepoliaTestnet.id]: http('https://eth-sepolia.g.alchemy.com/v2/demo', {
+      retryCount: 3,
+      retryDelay: 1000,
+    }),
   },
   ssr: true,
   // Disable auto-detection of local networks
