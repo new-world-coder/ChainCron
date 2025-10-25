@@ -9,12 +9,13 @@ import { defineChain } from 'viem'
 import { http } from 'wagmi'
 import { useEffect } from 'react'
 import { GlobalErrorHandler } from '@/components/GlobalErrorHandler'
+import { appConfig } from '@/lib/config'
 
 // Ethereum Sepolia testnet configuration (Vercel-ready)
 // Using Alchemy as primary RPC with multiple fallbacks for reliability
 const sepoliaTestnet = defineChain({
-  id: 11155111,
-  name: 'Sepolia',
+  id: appConfig.chain.id,
+  name: appConfig.chain.name,
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
@@ -23,7 +24,7 @@ const sepoliaTestnet = defineChain({
   rpcUrls: {
     default: {
       http: [
-        'https://rpc.sepolia.org', // Public RPC - CORS compatible
+        appConfig.chain.rpcUrl, // Public RPC - CORS compatible
       ],
     },
   },
@@ -37,20 +38,34 @@ const sepoliaTestnet = defineChain({
 const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL
 
 // Explicitly configure to prevent auto-detection of local networks
-const config = getDefaultConfig({
-  appName: 'ChainCron',
-  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default',
-  chains: [sepoliaTestnet],
-  transports: {
-    [sepoliaTestnet.id]: http('https://rpc.sepolia.org', {
-      retryCount: 3,
-      retryDelay: 1000,
-    }),
-  },
-  ssr: true,
-  // Disable auto-detection of local networks
-  syncConnectedChain: false,
-})
+// Use safe config with error handling
+let config: ReturnType<typeof getDefaultConfig>
+try {
+  config = getDefaultConfig({
+    appName: 'ChainCron',
+    projectId: appConfig.walletConnect.projectId,
+    chains: [sepoliaTestnet],
+    transports: {
+      [sepoliaTestnet.id]: http(appConfig.chain.rpcUrl, {
+        retryCount: 3,
+        retryDelay: 1000,
+      }),
+    },
+    ssr: true,
+    // Disable auto-detection of local networks
+    syncConnectedChain: false,
+  })
+} catch (error) {
+  // Fallback config if initialization fails
+  console.warn('Failed to initialize wallet config, using minimal config:', error)
+  config = getDefaultConfig({
+    appName: 'ChainCron',
+    projectId: 'default',
+    chains: [sepoliaTestnet],
+    ssr: true,
+    syncConnectedChain: false,
+  })
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
