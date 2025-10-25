@@ -11,8 +11,9 @@ const rateLimitStore = new Map<string, RateLimitStore>()
 // Clean up expired entries every 5 minutes
 setInterval(() => {
   const now = Date.now()
-  for (const [key, value] of rateLimitStore.entries()) {
-    if (value.resetTime < now) {
+  for (const key of Array.from(rateLimitStore.keys())) {
+    const value = rateLimitStore.get(key)
+    if (value && value.resetTime < now) {
       rateLimitStore.delete(key)
     }
   }
