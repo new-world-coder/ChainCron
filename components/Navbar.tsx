@@ -3,7 +3,7 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Menu, X, ChevronDown, Zap, BarChart3, Users, Settings, Bot, TestTube } from 'lucide-react'
 import { TESTNET_CONFIG } from '@/lib/testnet'
 import { Badge } from '@/components/ui/badge'
@@ -12,12 +12,12 @@ export function Navbar() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Element
+      if (!target.closest('.dropdown-container')) {
         setActiveDropdown(null)
       }
     }
@@ -123,11 +123,12 @@ export function Navbar() {
               const Icon = group.icon
               const isActive = group.items.some(item => pathname === item.href)
               return (
-                <div key={group.label} className="relative" ref={dropdownRef}>
+                <div key={group.label} className="relative dropdown-container">
                   <button
                     type="button"
                     onClick={(e) => {
                       e.preventDefault()
+                      e.stopPropagation()
                       setActiveDropdown(activeDropdown === group.label ? null : group.label)
                     }}
                     className={`nav-item flex items-center space-x-1 transition-colors hover:text-primary whitespace-nowrap text-sm px-3 py-2 rounded-md navbar-focus ${
@@ -149,11 +150,14 @@ export function Navbar() {
                           <Link
                             key={item.href}
                             href={item.href}
-                            onClick={() => setActiveDropdown(null)}
-                            className={`block px-4 py-2 text-sm transition-colors ${
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setActiveDropdown(null)
+                            }}
+                            className={`block px-4 py-2 text-sm transition-colors hover:text-foreground hover:bg-muted ${
                               pathname === item.href
                                 ? 'text-primary bg-primary/10'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                : 'text-muted-foreground'
                             }`}
                           >
                             {item.label}
