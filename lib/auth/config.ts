@@ -1,0 +1,208 @@
+import { NextAuthOptions } from 'next-auth'
+import { JWT } from 'next-auth/jwt'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import GoogleProvider from 'next-auth/providers/google'
+import GitHubProvider from 'next-auth/providers/github'
+import TwitterProvider from 'next-auth/providers/twitter'
+import { UserRole, User, DEFAULT_ADMIN, ADMIN_ADDRESSES } from './types'
+
+// Mock user database - in production, use Firebase/Firestore
+const mockUsers: User[] = [
+  {
+    id: '1',
+    address: '0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6',
+    name: 'Admin User',
+    role: 'admin',
+    email: 'admin@chaincron.com',
+    createdAt: new Date(),
+    isActive: true,
+  },
+  {
+    id: '2',
+    address: '0x1234567890123456789012345678901234567890',
+    name: 'Creator User',
+    role: 'creator',
+    createdAt: new Date(),
+    isActive: true,
+    profile: {
+      bio: 'DeFi automation expert',
+      website: 'https://example.com',
+    },
+  },
+  {
+    id: '3',
+    address: '0x9876543210987654321098765432109876543210',
+    name: 'Subscriber User',
+    role: 'subscriber',
+    createdAt: new Date(),
+    isActive: true,
+  },
+]
+
+// Helper function to find user by address or email
+function findUser(identifier: string): User | null {
+  return mockUsers.find(user => 
+    user.address?.toLowerCase() === identifier.toLowerCase() ||
+    user.email?.toLowerCase() === identifier.toLowerCase()
+  ) || null
+}
+
+// Helper function to create user
+function createUser(data: Partial<User>): User {
+  const newUser: User = {
+    id: Date.now().toString(),
+    role: 'subscriber', // Default role
+    createdAt: new Date(),
+    isActive: true,
+    ...data,
+  }
+  mockUsers.push(newUser)
+  return newUser
+}
+
+export const authOptions: NextAuthOptions = {
+  providers: [
+    // Google OAuth
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || 'default',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'default',
+    }),
+    
+    // GitHub OAuth
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID || 'default',
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || 'default',
+    }),
+    
+    // Twitter OAuth
+    TwitterProvider({
+      clientId: process.env.TWITTER_CLIENT_ID || 'default',
+      clientSecret: process.env.TWITTER_CLIENT_SECRET || 'default',
+      version: '2.0',
+    }),
+    
+    // Credentials provider for admin login
+    CredentialsProvider({
+      name: 'credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+        mfaCode: { label: 'MFA Code', type: 'text', required: false },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null
+        }
+
+        // Check for admin login
+        if (credentials.email === DEFAULT_ADMIN.email && 
+            credentials.password === DEFAULT_ADMIN.password) {
+          const adminUser = findUser(credentials.email)
+          if (adminUser) {
+            return {
+              id: adminUser.id,
+              email: adminUser.email,
+              name: adminUser.name,
+              role: adminUser.role,
+            }
+          }
+        }
+
+        // For other users, you would check against your user database
+        // This is a simplified version for demo purposes
+        return null
+      },
+    }),
+  ],
+  
+  callbacks: {
+    async jwt({ token, user, account }) {
+      // Initial sign in
+      if (user) {
+        token.role = user.role
+        token.address = user.address
+      }
+      
+      // Handle OAuth providers
+      if (account?.provider === 'google' || 
+          account?.provider === 'github' || 
+          account?.provider === 'twitter') {
+        // For OAuth users, we need to create or find their profile
+        const existingUser = findUser(user?.email || '')
+        if (existingUser) {
+          token.role = existingUser.role
+          token.address = existingUser.address
+        } else {
+          // Create new user with subscriber role by default
+          const newUser = createUser({
+            email: user?.email,
+            name: user?.name,
+            role: 'subscriber',
+          })
+          token.role = newUser.role
+          token.address = newUser.address
+        }
+      }
+      
+      return token
+    },
+    
+    async session({ session, token }) {
+      // Send properties to the client
+      if (token) {
+        session.user.id = token.sub!
+        session.user.role = token.role as UserRole
+        session.user.address = token.address || undefined
+      }
+      
+      return session
+    },
+    
+    async signIn({ user, account, profile }) {
+      // Allow all sign-ins for now
+      // In production, you might want to add additional checks
+      return true
+    },
+  },
+  
+  pages: {
+    signIn: '/auth/signin',
+    signOut: '/auth/signout',
+    error: '/auth/error',
+  },
+  
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  
+  secret: process.env.NEXTAUTH_SECRET || 'development-secret-key',
+}
+
+// Helper function to check if an address is an admin
+export function isAdminAddress(address: string): boolean {
+  return ADMIN_ADDRESSES.some(adminAddr => 
+    adminAddr.toLowerCase() === address.toLowerCase()
+  )
+}
+
+// Helper function to get user role from wallet address
+export function getUserRoleFromAddress(address: string): UserRole {
+  if (isAdminAddress(address)) {
+    return 'admin'
+  }
+  
+  const user = findUser(address)
+  return user?.role || 'subscriber'
+}
+
+// Helper function to check if user has permission for a role
+export function hasRole(userRole: UserRole, requiredRole: UserRole): boolean {
+  const roleHierarchy = {
+    admin: 3,
+    creator: 2,
+    subscriber: 1,
+  }
+  
+  return roleHierarchy[userRole] >= roleHierarchy[requiredRole]
+}

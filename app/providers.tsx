@@ -8,6 +8,7 @@ import { Toaster } from 'sonner'
 import { defineChain } from 'viem'
 import { http } from 'wagmi'
 import { useEffect } from 'react'
+import { SessionProvider } from 'next-auth/react'
 import { GlobalErrorHandler } from '@/components/GlobalErrorHandler'
 import { appConfig } from '@/lib/config'
 
@@ -146,28 +147,30 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <WalletErrorBoundary>
-      <GlobalErrorHandler />
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider
-            modalSize="compact"
-            showRecentTransactions={true}
-            appInfo={{
-              appName: 'ChainCron',
-              learnMoreUrl: 'https://chaincron.com',
-            }}
-          >
-            {children}
-            <Toaster 
-              position="top-right" 
-              richColors 
-              expand={true}
-              duration={4000}
-            />
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </WalletErrorBoundary>
+    <SessionProvider>
+      <WalletErrorBoundary>
+        <GlobalErrorHandler />
+        <WagmiProvider config={config}>
+          <QueryClientProvider client={queryClient}>
+            <RainbowKitProvider
+              modalSize="compact"
+              showRecentTransactions={true}
+              appInfo={{
+                appName: 'ChainCron',
+                learnMoreUrl: 'https://chaincron.com',
+              }}
+            >
+              {children}
+              <Toaster 
+                position="top-right" 
+                richColors 
+                expand={true}
+                duration={4000}
+              />
+            </RainbowKitProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
+      </WalletErrorBoundary>
+    </SessionProvider>
   )
 }

@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Mock shareable workflow creation
-async function createShareableWorkflow(workflowId: string, userId?: string, shareType: string, title?: string, description?: string) {
+async function createShareableWorkflow(workflowId: string, userId?: string, shareType: string = 'public', title?: string, description?: string) {
   const shareId = `share-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   
   console.log('Creating shareable workflow:', shareId, 'for workflow:', workflowId)

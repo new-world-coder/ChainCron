@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const status = await getExecutionStatus(executionId || workflowId)
+    const status = await getExecutionStatus(executionId || workflowId || '')
     
     return NextResponse.json({
       success: true,
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Mock workflow execution
-async function executeWorkflow(workflowId: string, userId?: string, parameters: any = {}, chainId: string) {
+async function executeWorkflow(workflowId: string, userId?: string, parameters: any = {}, chainId: string = 'flow-testnet') {
   const executionId = `exec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   
   console.log('Executing workflow:', workflowId, 'for user:', userId, 'on chain:', chainId)

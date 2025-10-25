@@ -469,7 +469,7 @@ export function OnboardingFlow({ isOpen, onClose }: OnboardingFlowProps) {
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <Checkbox id="gas-limit" defaultChecked />
-                        <label htmlFor="gas-limit" className="text-white">Pause if gas > $5</label>
+                        <label htmlFor="gas-limit" className="text-white">Pause if gas &gt; $5</label>
                         <span className="text-gray-400 text-sm">Saves you money during network congestion</span>
                       </div>
                       <div className="flex items-center space-x-2">

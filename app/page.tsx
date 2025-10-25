@@ -1,3 +1,6 @@
+import Link from 'next/link'
+import { LogIn, ArrowRight } from 'lucide-react'
+
 export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background">
@@ -12,9 +15,14 @@ export default function Home() {
           The decentralized DeFi automation platform that lets you create, share, and monetize workflows.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-            Get Started
-          </button>
+          <Link 
+            href="/auth/signin"
+            className="flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+          >
+            <LogIn className="w-5 h-5" />
+            Sign In to Get Started
+            <ArrowRight className="w-4 h-4" />
+          </Link>
           <button className="px-8 py-3 border border-border rounded-lg hover:bg-muted transition-colors">
             Learn More
           </button>
