@@ -12,6 +12,7 @@ interface AppConfig {
   }
 }
 
+// Safe defaults that work everywhere
 const getConfig = (): AppConfig => {
   // Safe defaults - always return a valid config
   const defaultConfig: AppConfig = {
