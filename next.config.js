@@ -38,9 +38,6 @@ const nextConfig = {
     
     return config
   },
-  experimental: {
-    esmExternals: 'loose',
-  },
   // Add headers to handle CORS and WebSocket issues
   async headers() {
     return [
