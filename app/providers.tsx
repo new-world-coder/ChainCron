@@ -30,13 +30,17 @@ const sepoliaTestnet = defineChain({
   testnet: true,
 })
 
+// Ensure we use Sepolia for production/Vercel
+const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL
+
 const config = getDefaultConfig({
   appName: 'ChainCron',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default',
   chains: [sepoliaTestnet],
   transports: {
-    [sepoliaTestnet.id]: http(),
+    [sepoliaTestnet.id]: http('https://rpc.sepolia.org'),
   },
+  ssr: true,
 })
 
 const queryClient = new QueryClient({
@@ -88,6 +92,17 @@ function WalletErrorBoundary({ children }: { children: React.ReactNode }) {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // Log chain configuration for debugging
+    console.log('🔗 ChainCron Network Configuration:')
+    console.log('- Chain ID:', sepoliaTestnet.id)
+    console.log('- Chain Name:', sepoliaTestnet.name)
+    console.log('- RPC URL:', 'https://rpc.sepolia.org')
+    console.log('- Block Explorer:', 'https://sepolia.etherscan.io')
+    console.log('- Environment:', process.env.NODE_ENV)
+    console.log('- Vercel:', process.env.VERCEL ? 'Yes' : 'No')
+  }, [])
+
   return (
     <WalletErrorBoundary>
       <GlobalErrorHandler />
