@@ -30,6 +30,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
+import { TestnetToggle, TestnetExecutionButton } from '@/components/TestnetStatus'
+import { useTestnetOperations } from '@/lib/testnet'
 
 // Workflow node types
 export interface WorkflowNode {
@@ -62,6 +64,7 @@ export interface ComposedWorkflow {
   successRate: number
   createdAt: Date
   updatedAt: Date
+  isTestnetEnabled?: boolean
 }
 
 // Mock workflow templates
@@ -73,73 +76,73 @@ const WORKFLOW_TEMPLATES = [
     nodes: [
       {
         id: 'trigger1',
-        type: 'trigger',
+        type: 'trigger' as const,
         name: 'Time Trigger',
         description: 'Execute every 24 hours',
         parameters: { interval: '24h' },
         position: { x: 100, y: 100 },
         connections: ['action1'],
-        status: 'idle',
+        status: 'idle' as const,
       },
       {
         id: 'action1',
-        type: 'action',
+        type: 'action' as const,
         name: 'Auto-Compound',
         description: 'Compound USDC rewards',
         parameters: { token: 'USDC', protocol: 'Aave' },
         position: { x: 300, y: 100 },
         connections: ['condition1'],
-        status: 'idle',
+        status: 'idle' as const,
       },
       {
         id: 'condition1',
-        type: 'condition',
+        type: 'condition' as const,
         name: 'Profit Check',
         description: 'Check if profit > $100',
         parameters: { threshold: 100, operator: '>' },
         position: { x: 500, y: 100 },
         connections: ['action2', 'action3'],
-        status: 'idle',
+        status: 'idle' as const,
       },
       {
         id: 'action2',
-        type: 'action',
+        type: 'action' as const,
         name: 'Rebalance',
         description: 'Rebalance portfolio',
         parameters: { targetAllocation: '60% ETH, 40% USDC' },
         position: { x: 700, y: 50 },
         connections: ['output1'],
-        status: 'idle',
+        status: 'idle' as const,
       },
       {
         id: 'action3',
-        type: 'action',
+        type: 'action' as const,
         name: 'Send Alert',
         description: 'Send notification',
         parameters: { message: 'High profit detected!' },
         position: { x: 700, y: 150 },
         connections: ['output2'],
-        status: 'idle',
+        status: 'idle' as const,
       },
       {
         id: 'output1',
-        type: 'output',
+        type: 'output' as const,
         name: 'Success',
         description: 'Workflow completed successfully',
         parameters: {},
         position: { x: 900, y: 50 },
         connections: [],
-        status: 'idle',
+        status: 'idle' as const,
       },
       {
         id: 'output2',
-        type: 'output',
+        type: 'output' as const,
         name: 'Alert Sent',
         description: 'Alert notification sent',
         parameters: {},
         position: { x: 900, y: 150 },
         connections: [],
-        status: 'idle',
+        status: 'idle' as const,
       },
     ],
     connections: [
@@ -241,6 +244,9 @@ export function WorkflowComposer() {
   const [isExecuting, setIsExecuting] = useState(false)
   const [executionStep, setExecutionStep] = useState(0)
   const [showVariables, setShowVariables] = useState(false)
+  const [isTestnetEnabled, setIsTestnetEnabled] = useState(false)
+
+  const { executeWorkflowOnTestnet, isExecuting: isTestnetExecuting } = useTestnetOperations()
 
   const handleSelectTemplate = (template: ComposedWorkflow) => {
     setSelectedTemplate(template)
@@ -268,6 +274,18 @@ export function WorkflowComposer() {
   const handleExecuteWorkflow = async () => {
     if (!currentWorkflow) return
     
+    if (isTestnetEnabled) {
+      // Execute on testnet
+      try {
+        const workflowId = parseInt(currentWorkflow.id.replace('workflow-', ''))
+        await executeWorkflowOnTestnet(workflowId, JSON.stringify(currentWorkflow.variables))
+      } catch (error) {
+        console.error('Testnet execution failed:', error)
+      }
+      return
+    }
+    
+    // Local simulation execution
     setIsExecuting(true)
     setExecutionStep(0)
     
@@ -292,6 +310,16 @@ export function WorkflowComposer() {
     }
     
     setIsExecuting(false)
+  }
+
+  const handleTestnetToggle = (enabled: boolean) => {
+    setIsTestnetEnabled(enabled)
+    if (currentWorkflow) {
+      setCurrentWorkflow({
+        ...currentWorkflow,
+        isTestnetEnabled: enabled
+      })
+    }
   }
 
   const handleSaveWorkflow = () => {
@@ -382,17 +410,21 @@ export function WorkflowComposer() {
                       <Download className="w-4 h-4 mr-2" />
                       Export
                     </Button>
+                    <TestnetToggle 
+                      enabled={isTestnetEnabled}
+                      onToggle={handleTestnetToggle}
+                    />
                     <Button
                       onClick={handleExecuteWorkflow}
-                      disabled={isExecuting}
+                      disabled={isExecuting || isTestnetExecuting}
                       className="bg-primary hover:bg-primary/90"
                     >
-                      {isExecuting ? (
+                      {isExecuting || isTestnetExecuting ? (
                         <Pause className="w-4 h-4 mr-2" />
                       ) : (
                         <Play className="w-4 h-4 mr-2" />
                       )}
-                      {isExecuting ? 'Executing...' : 'Execute'}
+                      {isExecuting || isTestnetExecuting ? 'Executing...' : 'Execute'}
                     </Button>
                   </div>
                 </div>

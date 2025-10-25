@@ -23,6 +23,8 @@ import {
   Share2
 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
+import { TestnetStatus } from '@/components/TestnetStatus'
+import { ExecutionLogSummary } from '@/components/ExecutionLogTable'
 
 interface DashboardStats {
   totalValue: number
@@ -288,9 +290,9 @@ export function UserDashboard() {
         transition={{ duration: 0.3 }}
       >
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Performance Chart */}
-            <div className="glass rounded-xl p-6">
+            <div className="glass rounded-xl p-6 lg:col-span-2">
               <h3 className="text-xl font-semibold mb-4">Earnings Over Time</h3>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -376,6 +378,16 @@ export function UserDashboard() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Testnet Status */}
+            <div className="lg:col-span-1">
+              <TestnetStatus />
+            </div>
+
+            {/* Execution Logs Summary */}
+            <div className="lg:col-span-1">
+              <ExecutionLogSummary />
             </div>
           </div>
         )}

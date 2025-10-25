@@ -4,7 +4,9 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, TestTube } from 'lucide-react'
+import { TESTNET_CONFIG } from '@/lib/testnet'
+import { Badge } from '@/components/ui/badge'
 
 export function Navbar() {
   const pathname = usePathname()
@@ -58,6 +60,14 @@ export function Navbar() {
           </div>
           
           <div className="flex items-center space-x-4">
+            {/* Testnet Badge */}
+            {TESTNET_CONFIG.enabled && (
+              <Badge variant="outline" className="flex items-center gap-1">
+                <TestTube className="w-3 h-3 text-blue-500" />
+                Testnet
+              </Badge>
+            )}
+            
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
