@@ -1,5 +1,18 @@
 # 🔧 Wallet Connection Fix for Vercel Deployment
 
+## 🚨 URGENT: Dialog Stuck on "Connecting to Hardhat Local"
+
+**If your MetaMask dialog is stuck and won't close:**
+
+1. **Right-click the MetaMask icon** in your browser toolbar
+2. **Click "Inspect popup"** to open MetaMask's DevTools
+3. **In the console**, type: `window.location.reload()` and press Enter
+4. This will refresh MetaMask and close the stuck dialog
+
+**Then follow the steps below to add Sepolia network.**
+
+---
+
 ## ⚠️ Issue
 
 When connecting MetaMask to the ChainCron Vercel deployment, you may see the error:
@@ -89,12 +102,34 @@ If MetaMask doesn't auto-switch:
 2. Click "Switch network" when prompted
 3. Select "Sepolia"
 
-### Option 3: Reset and Retry
+### Option 3: Reset MetaMask Cache (If Dialog is Stuck)
 
-1. Disconnect from ChainCron (if connected)
-2. Clear MetaMask cache
-3. Reconnect to Sepolia network
-4. Try connecting again
+If the "Connecting to Hardhat Local" dialog is stuck and won't close:
+
+**Method A: Refresh MetaMask**
+1. Right-click the MetaMask extension icon in your browser
+2. Click "Inspect popup" (Chrome) or "Inspect" (Firefox)
+3. In the DevTools console, type: `window.location.reload()`
+4. Press Enter
+
+**Method B: Reload the Page**
+1. Close the stuck MetaMask dialog (if possible)
+2. Press `Ctrl+Shift+R` (Windows/Linux) or `Cmd+Shift+R` (Mac) to hard refresh
+3. Clear browser cache if needed
+
+**Method C: Reset MetaMask Connection**
+1. Click the MetaMask extension icon
+2. Click the three dots (⋮) menu
+3. Go to Settings → Advanced → Reset Account (this only resets your connection history)
+4. Refresh the ChainCron page
+5. Try connecting again
+
+**Method D: Full Reset (Last Resort)**
+1. Click MetaMask extension icon
+2. Settings → Advanced → Reset Account
+3. Go back to ChainCron
+4. Click "Connect Wallet" again
+5. Approve the connection when prompted
 
 ---
 
