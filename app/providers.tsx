@@ -33,6 +33,7 @@ const sepoliaTestnet = defineChain({
 // Ensure we use Sepolia for production/Vercel
 const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL
 
+// Explicitly configure to prevent auto-detection of local networks
 const config = getDefaultConfig({
   appName: 'ChainCron',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default',
@@ -41,6 +42,8 @@ const config = getDefaultConfig({
     [sepoliaTestnet.id]: http('https://rpc.sepolia.org'),
   },
   ssr: true,
+  // Disable auto-detection of local networks
+  syncConnectedChain: false,
 })
 
 const queryClient = new QueryClient({
@@ -101,6 +104,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
     console.log('- Block Explorer:', 'https://sepolia.etherscan.io')
     console.log('- Environment:', process.env.NODE_ENV)
     console.log('- Vercel:', process.env.VERCEL ? 'Yes' : 'No')
+    
+    // Warn users if they're trying to connect to localhost
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      console.warn('⚠️ You are on a Vercel deployment. Make sure Sepolia network is added to MetaMask.')
+      console.warn('⚠️ If you see "Hardhat Local" errors, add Sepolia network and switch to it.')
+    }
   }, [])
 
   return (
