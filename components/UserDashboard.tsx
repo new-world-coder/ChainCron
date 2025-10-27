@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAccount } from 'wagmi'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { 
   BarChart3, 
   TrendingUp, 
@@ -167,9 +168,12 @@ export function UserDashboard() {
     return (
       <div className="glass rounded-xl p-8 text-center">
         <h3 className="text-xl font-semibold mb-4">Connect Your Wallet</h3>
-        <p className="text-muted-foreground">
-          Please connect your wallet to view your dashboard.
+        <p className="text-muted-foreground mb-6">
+          Please connect your wallet to view your dashboard and manage workflows.
         </p>
+        <div className="flex justify-center">
+          <ConnectButton />
+        </div>
       </div>
     )
   }

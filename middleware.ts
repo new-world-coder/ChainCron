@@ -21,9 +21,12 @@ export default withAuth(
     }
 
     // Dashboard routes protection (requires authentication)
+    // Allow wallet-based auth (check client-side)
     if (pathname.startsWith('/dashboard')) {
       if (!token) {
-        return NextResponse.redirect(new URL('/auth/signin', req.url))
+        // Don't redirect - let the client check for wallet connection
+        // The dashboard page will handle auth state client-side
+        return NextResponse.next()
       }
     }
 

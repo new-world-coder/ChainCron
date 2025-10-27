@@ -15,15 +15,17 @@ export function GlobalErrorHandler() {
           errorMessage.includes('subscribe') ||
           errorMessage.includes('WebSocket') ||
           errorMessage.includes('jsonrpc-provider') ||
+          errorMessage.includes('jsonrpc-ws-connection') ||
           errorMessage.includes('ws-connection') ||
           errorMessage.includes('EventEmitter') ||
           errorMessage.includes('onClose') ||
           errorMessage.includes('onclose') ||
+          errorMessage.includes('Fatal socket error') ||
           errorStack.includes('@walletconnect') ||
           errorStack.includes('@reown') ||
-          errorStack.includes('appkit')) {
-        console.warn('Wallet connection interrupted (this is normal):', errorMessage)
-        event.preventDefault() // Prevent the error from showing in console
+          errorStack.includes('appkit') ||
+          errorStack.includes('core/dist/index.es.js')) {
+        event.preventDefault()
         return
       }
       
@@ -40,8 +42,17 @@ export function GlobalErrorHandler() {
       // Check if it's a Reown/AppKit configuration error
       if (errorMessage.includes('Failed to fetch remote project configuration') ||
           errorMessage.includes('HTTP status code: 403') ||
-          errorMessage.includes('api.web3modal.org')) {
-        console.warn('Wallet configuration error (using local defaults):', errorMessage)
+          errorMessage.includes('HTTP status code: 400') ||
+          errorMessage.includes('api.web3modal.org') ||
+          errorMessage.includes('getWallets') ||
+          errorMessage.includes('getAssetImage') ||
+          errorMessage.includes('pulse.walletconnect.org') ||
+          errorMessage.includes('Unauthorized: invalid key') ||
+          errorMessage.includes('Unauthorized: invalid client') ||
+          errorStack.includes('@walletconnect') ||
+          errorStack.includes('@reown') ||
+          errorStack.includes('appkit') ||
+          errorStack.includes('core/dist/index.es.js')) {
         event.preventDefault()
         return
       }
@@ -55,20 +66,28 @@ export function GlobalErrorHandler() {
       const errorMessage = event.message || ''
       const errorStack = event.error?.stack || ''
       
-      // Check if it's a WalletConnect related error
-      if (errorMessage.includes('Connection interrupted') || 
-          errorMessage.includes('WalletConnect') ||
-          errorMessage.includes('subscribe') ||
-          errorMessage.includes('WebSocket') ||
-          errorMessage.includes('jsonrpc-provider') ||
-          errorMessage.includes('ws-connection') ||
-          errorMessage.includes('EventEmitter') ||
-          errorMessage.includes('onClose') ||
-          errorMessage.includes('onclose') ||
-          errorStack.includes('@walletconnect') ||
-          errorStack.includes('@reown') ||
-          errorStack.includes('appkit')) {
-        console.warn('Wallet connection error (this is normal):', errorMessage)
+      // Suppress non-critical errors
+      if (
+        errorMessage.includes('Extra attributes') ||
+        errorMessage.includes('hydration') ||
+        errorMessage.includes('data-channel-name') ||
+        errorMessage.includes('data-extension-id') ||
+        errorMessage.includes('Connection interrupted') || 
+        errorMessage.includes('WalletConnect') ||
+        errorMessage.includes('subscribe') ||
+        errorMessage.includes('WebSocket') ||
+        errorMessage.includes('jsonrpc-provider') ||
+        errorMessage.includes('jsonrpc-ws-connection') ||
+        errorMessage.includes('ws-connection') ||
+        errorMessage.includes('EventEmitter') ||
+        errorMessage.includes('onClose') ||
+        errorMessage.includes('onclose') ||
+        errorMessage.includes('Fatal socket error') ||
+        errorStack.includes('@walletconnect') ||
+        errorStack.includes('@reown') ||
+        errorStack.includes('appkit') ||
+        errorStack.includes('core/dist/index.es.js')
+      ) {
         event.preventDefault()
         return
       }

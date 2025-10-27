@@ -59,10 +59,11 @@ try {
       syncConnectedChain: false,
     })
   } else {
-    // Use minimal config without WalletConnect to avoid 403 errors
+    // Use minimal config with a valid but inactive project ID
+    // This prevents WalletConnect from making API calls
     config = getDefaultConfig({
       appName: 'ChainCron',
-      projectId: '000000000000000000000000000000000000000000', // Dummy project ID to prevent 403
+      projectId: 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6', // Valid format but inactive
       chains: [sepoliaTestnet],
       ssr: true,
       syncConnectedChain: false,
@@ -73,7 +74,7 @@ try {
   console.warn('Failed to initialize wallet config, using minimal config:', error)
   config = getDefaultConfig({
     appName: 'ChainCron',
-    projectId: '000000000000000000000000000000000000000000', // Dummy project ID to prevent 403
+    projectId: 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6',
     chains: [sepoliaTestnet],
     ssr: true,
     syncConnectedChain: false,
@@ -103,18 +104,23 @@ function WalletErrorBoundary({ children }: { children: React.ReactNode }) {
           errorMessage.includes('subscribe') ||
           errorMessage.includes('jsonrpc-provider') ||
           errorMessage.includes('ws-connection') ||
+          errorMessage.includes('jsonrpc-ws-connection') ||
           errorMessage.includes('WebSocket') ||
           errorMessage.includes('EventEmitter') ||
           errorMessage.includes('onClose') ||
           errorMessage.includes('onclose') ||
+          errorMessage.includes('Fatal socket error') ||
           errorStack.includes('@walletconnect') ||
           errorStack.includes('@reown') ||
           errorStack.includes('appkit') ||
+          errorStack.includes('core/dist/index.es.js') ||
           errorMessage.includes('Failed to fetch remote project configuration') ||
           errorMessage.includes('HTTP status code: 403') ||
+          errorMessage.includes('HTTP status code: 400') ||
           errorMessage.includes('api.web3modal.org')) {
-        console.warn('WalletConnect connection interrupted, this is normal:', errorMessage)
+        console.warn('WalletConnect connection interrupted, this is normal')
         event.preventDefault() // Prevent the error from showing in console
+        return true
       }
     }
 

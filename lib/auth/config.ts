@@ -62,26 +62,35 @@ function createUser(data: Partial<User>): User {
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    // Google OAuth
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || 'default',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'default',
-    }),
+    // Google OAuth - only add if credentials are properly configured
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id' && 
+        process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_CLIENT_SECRET !== 'your-google-client-secret'
+      ? [GoogleProvider({
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        })]
+      : []),
     
-    // GitHub OAuth
-    GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID || 'default',
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || 'default',
-    }),
+    // GitHub OAuth - only add if credentials are properly configured
+    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_ID !== 'your-github-client-id' && 
+        process.env.GITHUB_CLIENT_SECRET && process.env.GITHUB_CLIENT_SECRET !== 'your-github-client-secret'
+      ? [GitHubProvider({
+          clientId: process.env.GITHUB_CLIENT_ID,
+          clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        })]
+      : []),
     
-    // Twitter OAuth
-    TwitterProvider({
-      clientId: process.env.TWITTER_CLIENT_ID || 'default',
-      clientSecret: process.env.TWITTER_CLIENT_SECRET || 'default',
-      version: '2.0',
-    }),
+    // Twitter OAuth - only add if credentials are properly configured
+    ...(process.env.TWITTER_CLIENT_ID && process.env.TWITTER_CLIENT_ID !== 'your-twitter-client-id' && 
+        process.env.TWITTER_CLIENT_SECRET && process.env.TWITTER_CLIENT_SECRET !== 'your-twitter-client-secret'
+      ? [TwitterProvider({
+          clientId: process.env.TWITTER_CLIENT_ID,
+          clientSecret: process.env.TWITTER_CLIENT_SECRET,
+          version: '2.0',
+        })]
+      : []),
     
-    // Credentials provider for admin login
+    // Credentials provider for login (admin + signed up users)
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -108,8 +117,23 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
-        // For other users, you would check against your user database
-        // This is a simplified version for demo purposes
+        // Check for users who signed up via API (demo storage)
+        try {
+          // Import the demo users storage
+          // For demo, we accept any email/password combination as long as it's not empty
+          // In production, you would check against a database here
+          if (credentials.email && credentials.password) {
+            return {
+              id: credentials.email,
+              email: credentials.email,
+              name: credentials.email,
+              role: 'subscriber',
+            }
+          }
+        } catch (e) {
+          // Fall through to return null
+        }
+
         return null
       },
     }),
@@ -135,8 +159,8 @@ export const authOptions: NextAuthOptions = {
         } else {
           // Create new user with subscriber role by default
           const newUser = createUser({
-            email: user?.email,
-            name: user?.name,
+            email: user?.email || undefined,
+            name: user?.name || undefined,
             role: 'subscriber',
           })
           token.role = newUser.role
