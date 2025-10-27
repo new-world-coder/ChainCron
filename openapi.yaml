@@ -1,0 +1,199 @@
+openapi: 3.0.3
+info:
+  title: ChainCron API
+  version: "1.0.0"
+servers:
+  - url: http://localhost:3000
+paths:
+  /auth/siwe/nonce:
+    get:
+      summary: Issue SIWE nonce
+      parameters:
+        - name: address
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: nonce
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nonce:
+                    type: string
+  /auth/siwe:
+    post:
+      summary: Verify SIWE signature + create session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message: { type: string }
+                signature: { type: string }
+      responses:
+        "200":
+          description: session
+  /api/workflows:
+    post:
+      summary: Create workflow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Workflow'
+      responses:
+        "201":
+          description: created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workflowId: { type: string }
+                  versionId: { type: string }
+  /api/workflows/{id}/publish:
+    post:
+      summary: Publish workflow to marketplace
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priceAmount: { type: number }
+                priceCurrency: { type: string }
+                visibility: { type: string }
+      responses:
+        "200": { description: ok }
+  /api/workflows/{id}/deploy:
+    post:
+      summary: Request deploy for workflow version
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                versionId: { type: string }
+                env:
+                  type: string
+                  enum: [testnet, mainnet]
+      responses:
+        "202":
+          description: deployment queued
+  /api/workflows/{id}/subscribe:
+    post:
+      summary: Subscribe to a workflow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                paymentMode:
+                  type: string
+                  enum: [stripe, credits, onchain]
+                planId: { type: string }
+      responses:
+        "200":
+          description: subscription created / checkout url returned
+  /api/invoke:
+    post:
+      summary: Invoke a workflow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workflowId: { type: string }
+                invocationId: { type: string }
+                params: { type: object }
+      responses:
+        "202":
+          description: invocation queued
+  /api/invocations/{id}/status:
+    get:
+      summary: Get invocation status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: invocation status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  status: { type: string }
+                  error: { type: string }
+                  createdAt: { type: string }
+                  completedAt: { type: string }
+  /api/creators/{id}/metrics:
+    get:
+      summary: Get creator metrics
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: start_date
+          in: query
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: metrics
+  /api/credits/topup:
+    post:
+      summary: Create credits top-up checkout session
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount: { type: number }
+      responses:
+        "200":
+          description: checkout URL
+components:
+  schemas:
+    Workflow:
+      type: object
+      required: [version, meta, trigger, steps]
+      properties:
+        version: { type: integer }
+        meta:
+          type: object
+          properties:
+            title: { type: string }
+            slug: { type: string }
+            description: { type: string }
+        trigger: { type: object }
+        steps:
+          type: array
+          items:
+            type: object
+

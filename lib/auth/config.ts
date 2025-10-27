@@ -51,7 +51,7 @@ function findUser(identifier: string): User | null {
 function createUser(data: Partial<User>): User {
   const newUser: User = {
     id: Date.now().toString(),
-    role: 'subscriber', // Default role
+    role: 'creator', // Default to creator role for local testing
     createdAt: new Date(),
     isActive: true,
     ...data,
@@ -123,11 +123,23 @@ export const authOptions: NextAuthOptions = {
           // For demo, we accept any email/password combination as long as it's not empty
           // In production, you would check against a database here
           if (credentials.email && credentials.password) {
+            // Check if user exists
+            const existingUser = findUser(credentials.email);
+            if (existingUser) {
+              return {
+                id: existingUser.id,
+                email: existingUser.email || credentials.email,
+                name: existingUser.name || credentials.email,
+                role: existingUser.role,
+              }
+            }
+            
+            // Create new user with creator role
             return {
               id: credentials.email,
               email: credentials.email,
               name: credentials.email,
-              role: 'subscriber',
+              role: 'creator',
             }
           }
         } catch (e) {
@@ -157,14 +169,28 @@ export const authOptions: NextAuthOptions = {
           token.role = existingUser.role
           token.address = existingUser.address
         } else {
-          // Create new user with subscriber role by default
+          // Create new user with creator role by default for local testing
           const newUser = createUser({
             email: user?.email || undefined,
             name: user?.name || undefined,
-            role: 'subscriber',
+            role: 'creator',
           })
           token.role = newUser.role
           token.address = newUser.address
+        }
+      }
+      
+      // For credentials provider, check if user exists, if not create with creator role
+      if (account?.provider === 'credentials' && user?.email) {
+        const existingUser = findUser(user.email);
+        if (!existingUser) {
+          const newUser = createUser({
+            email: user.email,
+            name: user.name,
+            role: 'creator',
+          });
+          token.role = newUser.role;
+          token.address = newUser.address;
         }
       }
       

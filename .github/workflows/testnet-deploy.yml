@@ -1,0 +1,44 @@
+name: Testnet Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      workflowId:
+        required: true
+        description: 'Workflow ID to deploy'
+      versionId:
+        required: true
+        description: 'Version ID to deploy'
+      deploymentId:
+        required: true
+        description: 'Deployment ID'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Install deps
+        run: npm ci
+      
+      - name: Deploy contracts (Hardhat)
+        env:
+          PRIVATE_KEY: ${{ secrets.TESTNET_DEPLOY_KEY }}
+          RPC_URL: ${{ secrets.TESTNET_RPC }}
+        run: |
+          npx hardhat run scripts/deploy.js --network testnet --workflowId ${{ github.event.inputs.workflowId }} --versionId ${{ github.event.inputs.versionId }}
+      
+      - name: Notify app about deployment
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.APP_DEPLOY_CALLBACK_SECRET }}" \
+            -d '{"deploymentId":"${{ github.event.inputs.deploymentId }}","status":"success","txHash":"0xdeadbeef"}' \
+            ${{ secrets.APP_DEPLOY_CALLBACK_URL }}
+
