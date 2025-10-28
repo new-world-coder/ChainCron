@@ -22,6 +22,7 @@ const mockUsers: User[] = [
     address: '0x1234567890123456789012345678901234567890',
     name: 'Creator User',
     role: 'creator',
+    email: 'creator@chaincron.com',
     createdAt: new Date(),
     isActive: true,
     profile: {
@@ -33,6 +34,24 @@ const mockUsers: User[] = [
     id: '3',
     address: '0x9876543210987654321098765432109876543210',
     name: 'Subscriber User',
+    role: 'subscriber',
+    email: 'subscriber@chaincron.com',
+    createdAt: new Date(),
+    isActive: true,
+  },
+  // Add generic emails for testing
+  {
+    id: '4',
+    email: 'creator@gmail.com',
+    name: 'Test Creator',
+    role: 'creator',
+    createdAt: new Date(),
+    isActive: true,
+  },
+  {
+    id: '5',
+    email: 'subscriber@gmail.com',
+    name: 'Test Subscriber',
     role: 'subscriber',
     createdAt: new Date(),
     isActive: true,
@@ -51,7 +70,7 @@ function findUser(identifier: string): User | null {
 function createUser(data: Partial<User>): User {
   const newUser: User = {
     id: Date.now().toString(),
-    role: 'creator', // Default to creator role for local testing
+    role: data.role || 'subscriber', // Default to subscriber role for new users
     createdAt: new Date(),
     isActive: true,
     ...data,
@@ -169,25 +188,30 @@ export const authOptions: NextAuthOptions = {
           token.role = existingUser.role
           token.address = existingUser.address
         } else {
-          // Create new user with creator role by default for local testing
+          // Create new user with subscriber role by default
           const newUser = createUser({
             email: user?.email || undefined,
             name: user?.name || undefined,
-            role: 'creator',
+            role: 'subscriber',
           })
           token.role = newUser.role
           token.address = newUser.address
         }
       }
       
-      // For credentials provider, check if user exists, if not create with creator role
+      // For credentials provider, check if user exists
       if (account?.provider === 'credentials' && user?.email) {
         const existingUser = findUser(user.email);
-        if (!existingUser) {
+        if (existingUser) {
+          // Use existing user's role
+          token.role = existingUser.role;
+          token.address = existingUser.address;
+        } else {
+          // Create new user with subscriber role
           const newUser = createUser({
             email: user.email,
             name: user.name,
-            role: 'creator',
+            role: 'subscriber',
           });
           token.role = newUser.role;
           token.address = newUser.address;
@@ -243,7 +267,37 @@ export function getUserRoleFromAddress(address: string): UserRole {
   }
   
   const user = findUser(address)
-  return user?.role || 'subscriber'
+  if (user) {
+    return user.role
+  }
+  
+  // For testing: allow user to choose role when first connecting wallet
+  // In production, new wallet users would be subscribers by default
+  const storedRole = localStorage.getItem(`user_role_${address.toLowerCase()}`)
+  if (storedRole && ['creator', 'subscriber', 'admin'].includes(storedRole)) {
+    return storedRole as UserRole
+  }
+  
+  return 'subscriber'
+}
+
+// Helper function to set user role (for testing)
+export function setUserRole(address: string, role: UserRole) {
+  localStorage.setItem(`user_role_${address.toLowerCase()}`, role)
+  // Also update in mockUsers for persistence
+  const existing = mockUsers.find(u => u.address?.toLowerCase() === address.toLowerCase())
+  if (existing) {
+    existing.role = role
+  } else {
+    // Add new user
+    mockUsers.push({
+      id: Date.now().toString(),
+      address,
+      role,
+      createdAt: new Date(),
+      isActive: true,
+    })
+  }
 }
 
 // Helper function to check if user has permission for a role

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import { 
   Plus, 
   TrendingUp, 
@@ -12,11 +13,54 @@ import {
   Upload,
   Eye,
   Edit,
-  Trash2
+  Trash2,
+  Play,
+  Save,
+  Pause
 } from 'lucide-react'
+import { getSavedWorkflows, deleteWorkflow, convertSavedWorkflowToComposed } from '@/lib/utils/workflowStorage'
+import type { SavedWorkflow } from '@/lib/utils/workflowStorage'
 
 export default function CreatorPage() {
   const [activeTab, setActiveTab] = useState('overview')
+  const [savedWorkflows, setSavedWorkflows] = useState<SavedWorkflow[]>([])
+  const router = useRouter()
+
+  useEffect(() => {
+    // Load saved workflows on mount
+    loadSavedWorkflows()
+  }, [])
+
+  const loadSavedWorkflows = () => {
+    try {
+      const workflows = getSavedWorkflows()
+      setSavedWorkflows(workflows)
+    } catch (error) {
+      console.error('Error loading workflows:', error)
+    }
+  }
+
+  const handleDeleteWorkflow = (id: string) => {
+    if (confirm('Are you sure you want to delete this workflow?')) {
+      try {
+        deleteWorkflow(id)
+        setSavedWorkflows(getSavedWorkflows())
+      } catch (error) {
+        console.error('Error deleting workflow:', error)
+        alert('Failed to delete workflow')
+      }
+    }
+  }
+
+  const handleEditWorkflow = (id: string) => {
+    // Navigate to builder with the workflow ID
+    router.push(`/builder?edit=${id}`)
+  }
+
+  const handleDeployWorkflow = (id: string) => {
+    // Navigate to deployment page
+    router.push(`/builder?deploy=${id}`)
+  }
 
   const mockWorkflows = [
     {
@@ -44,6 +88,19 @@ export default function CreatorPage() {
       createdAt: '2024-02-15'
     }
   ]
+
+  // Combine saved workflows with mock data for display
+  const displayWorkflows = savedWorkflows.length > 0 
+    ? savedWorkflows.map(wf => ({
+        id: wf.id,
+        name: wf.name,
+        subscribers: 0,
+        revenue: 0,
+        status: 'draft' as const,
+        createdAt: wf.createdAt.toLocaleDateString(),
+        nodeCount: wf.nodes.length,
+      }))
+    : []
 
   const stats = {
     totalRevenue: 5.96,
@@ -239,67 +296,173 @@ export default function CreatorPage() {
           {activeTab === 'workflows' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">My Workflows</h3>
+                <h3 className="text-lg font-semibold">My Saved Workflows</h3>
                 <motion.button
                   className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push('/builder')}
                 >
                   <Plus className="w-4 h-4" />
-                  Create Workflow
+                  Create New Workflow
                 </motion.button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {mockWorkflows.map((workflow) => (
-                  <motion.div
-                    key={workflow.id}
-                    className="glass rounded-xl p-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
+              {savedWorkflows.length === 0 ? (
+                <div className="text-center py-12 glass rounded-xl">
+                  <p className="text-muted-foreground mb-4">No saved workflows yet</p>
+                  <motion.button
+                    className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                    onClick={() => router.push('/builder')}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h4 className="font-semibold text-lg">{workflow.name}</h4>
-                        <p className="text-sm text-muted-foreground">Created {workflow.createdAt}</p>
+                    Create Your First Workflow
+                  </motion.button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {savedWorkflows.map((workflow) => (
+                    <motion.div
+                      key={workflow.id}
+                      className="glass rounded-xl p-6"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h4 className="font-semibold text-lg">{workflow.name}</h4>
+                          <p className="text-sm text-muted-foreground">Created {workflow.createdAt.toLocaleDateString()}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{workflow.description}</p>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          workflow.isDeployed 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {workflow.isDeployed ? 'Published' : 'Draft'}
+                        </span>
                       </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        workflow.status === 'active' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {workflow.status}
-                      </span>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Subscribers</p>
-                        <p className="font-semibold">{workflow.subscribers}</p>
+                      <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Nodes</p>
+                          <p className="font-semibold">{workflow.nodes.length}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Success Rate</p>
+                          <p className="font-semibold">{workflow.successRate}%</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Gas Estimate</p>
+                          <p className="font-semibold">{workflow.estimatedGas}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Revenue</p>
-                        <p className="font-semibold">{workflow.revenue} ETH</p>
-                      </div>
-                    </div>
 
-                    <div className="flex gap-2">
-                      <button className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors">
-                        <Eye className="w-4 h-4" />
-                        View
-                      </button>
-                      <button className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-                        <Edit className="w-4 h-4" />
-                        Edit
-                      </button>
-                      <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                      <div className="flex gap-2">
+                        <button 
+                          className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors"
+                          onClick={() => handleEditWorkflow(workflow.id)}
+                        >
+                          <Edit className="w-4 h-4" />
+                          Edit
+                        </button>
+                        {workflow.isDeployed ? (
+                          <button 
+                            className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                            onClick={() => {
+                              // Handle undeploy
+                              const { getWorkflowById, saveWorkflow } = require('@/lib/utils/workflowStorage')
+                              const saved = getWorkflowById(workflow.id)
+                              if (saved) {
+                                saveWorkflow({
+                                  ...saved,
+                                  isDeployed: false,
+                                  status: 'paused'
+                                })
+                                loadSavedWorkflows()
+                                alert('Workflow has been unpublished')
+                              }
+                            }}
+                          >
+                            <Pause className="w-4 h-4" />
+                            Unpublish
+                          </button>
+                        ) : (
+                          <button 
+                            className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                            onClick={() => handleDeployWorkflow(workflow.id)}
+                          >
+                            <Play className="w-4 h-4" />
+                            Deploy
+                          </button>
+                        )}
+                        <button 
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          onClick={() => handleDeleteWorkflow(workflow.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+
+              {/* Show mock published workflows */}
+              {mockWorkflows.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-lg font-semibold mb-4">Published Workflows</h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {mockWorkflows.map((workflow) => (
+                      <motion.div
+                        key={workflow.id}
+                        className="glass rounded-xl p-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <h4 className="font-semibold text-lg">{workflow.name}</h4>
+                            <p className="text-sm text-muted-foreground">Created {workflow.createdAt}</p>
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            workflow.status === 'active' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {workflow.status}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Subscribers</p>
+                            <p className="font-semibold">{workflow.subscribers}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Revenue</p>
+                            <p className="font-semibold">{workflow.revenue} ETH</p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <button className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors">
+                            <Eye className="w-4 h-4" />
+                            View
+                          </button>
+                          <button className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+                            <Settings className="w-4 h-4" />
+                            Manage
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

@@ -356,8 +356,17 @@ export function WorkflowComposer() {
 
   const handleSaveWorkflow = () => {
     if (currentWorkflow) {
-      console.log('Saving workflow:', currentWorkflow)
-      // In a real app, this would save to the backend
+      try {
+        // Save to localStorage
+        const { saveWorkflow } = require('@/lib/utils/workflowStorage')
+        saveWorkflow(currentWorkflow)
+        
+        // Also show a success message
+        alert('Workflow saved successfully!')
+      } catch (error) {
+        console.error('Error saving workflow:', error)
+        alert('Failed to save workflow')
+      }
     }
   }
 
